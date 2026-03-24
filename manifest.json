@@ -1,0 +1,25 @@
+{
+  "name": "Protocole Vérification Électrique SBB CFF FFS",
+  "short_name": "SBB Protocole",
+  "description": "Premières vérifications par l'installateur électricien",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#CC0000",
+  "theme_color": "#1a2e5e",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "logo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
