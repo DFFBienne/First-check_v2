@@ -204,6 +204,9 @@ function exportData(){
   showToast('Export téléchargé ✓');
 }
 
+// ── Import pending data (stored while modal is open) ──────────────────
+let _importPending = null;
+
 function importData(evt){
   const file=evt.target.files[0]; if(!file)return;
   const reader=new FileReader();
@@ -211,28 +214,66 @@ function importData(evt){
     try{
       const d=JSON.parse(e.target.result);
       if(!d._app||d._app!=='SBB_Protocole') throw new Error('Fichier non reconnu');
-      // Reset UI
-      circuitIds=[]; nextId=1;
-      $('circuits-container').innerHTML=`<p id="no-circuit-msg" style="text-align:center;color:var(--muted);font-size:13px;padding:8px 0;">${I18N[currentLang].noCircuit}</p>`;
-      // Restore lang
-      if(d.lang&&I18N[d.lang]){
-        currentLang=d.lang;
-        document.querySelectorAll('.lang-btn').forEach(b=>{b.classList.remove('active');if(b.textContent===d.lang.toUpperCase())b.classList.add('active');});
-        applyLang();
-      }
-      // Restore fields
-      FIELDS.forEach(f=>sv(f,d[f]));
-      // Restore circuits
-      if(d.circuits&&d.circuits.length)d.circuits.forEach(c=>addCircuit(c));
-      // Save to localStorage
-      if(d.sigData){sigData=d.sigData;}
-      localStorage.setItem(SKEY,JSON.stringify(d));
-      markSaved(); updateBadge();
-      showToast('Import réussi ✓');
+      _importPending = d;
+      $('import-modal').style.display='flex';
     }catch(err){
       showToast('Erreur import: '+err.message, 4000);
     }
-    evt.target.value=''; // reset input so same file can be re-imported
+    evt.target.value='';
   };
   reader.readAsText(file);
+}
+
+function closeImportModal(){
+  $('import-modal').style.display='none';
+  _importPending = null;
+}
+
+function doImport(mode){
+  $('import-modal').style.display='none';
+  const d = _importPending;
+  _importPending = null;
+  if(!d) return;
+
+  if(mode === 'replace'){
+    // ── Mode remplacement total ──────────────────────────────
+    circuitIds=[]; nextId=1;
+    $('circuits-container').innerHTML=`<p id="no-circuit-msg" style="text-align:center;color:var(--muted);font-size:13px;padding:8px 0;">${I18N[currentLang].noCircuit}</p>`;
+    if(d.lang&&I18N[d.lang]){
+      currentLang=d.lang;
+      document.querySelectorAll('.lang-btn').forEach(b=>{b.classList.remove('active');if(b.textContent===d.lang.toUpperCase())b.classList.add('active');});
+      applyLang();
+    }
+    FIELDS.forEach(f=>sv(f,d[f]));
+    if(d.circuits&&d.circuits.length) d.circuits.forEach(c=>addCircuit(c));
+    if(d.sigData){ sigData=d.sigData; }
+    localStorage.setItem(SKEY,JSON.stringify(d));
+    markSaved(); updateBadge();
+    showToast('Import complet ✓');
+
+  } else if(mode === 'merge'){
+    // ── Mode fusion — ajoute uniquement les circuits absents ──
+    if(!d.circuits||!d.circuits.length){
+      showToast('Aucun circuit à ajouter');
+      return;
+    }
+    // Collect existing designations to detect duplicates
+    const existingDesigs = new Set(
+      circuitIds
+        .filter(id=>!!$('cc-'+id))
+        .map(id=>gv('groupe_'+id)+'|'+gv('desig_'+id))
+    );
+    let added = 0;
+    d.circuits.forEach(c=>{
+      const key = (c.groupe||'')+'|'+(c.desig||'');
+      if(!existingDesigs.has(key)){
+        if(circuitIds.length < 18){
+          addCircuit(c);
+          added++;
+        }
+      }
+    });
+    saveData();
+    showToast(added > 0 ? `${added} circuit(s) ajouté(s) ✓` : 'Aucun nouveau circuit à ajouter');
+  }
 }
