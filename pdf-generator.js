@@ -61,7 +61,7 @@ async function buildPDF(){
 
   // 3. TABLEAU
   const BZH=57*MM,TBOT=6*MM+BZH,TTOP=IY-IH,TH=TTOP-TBOT,TW=W-ML-MR;
-  const rawCW=[7,36,12,13,11,10,13,13,13,13,11,11,11,11,10,11,12];
+  const rawCW=[7,28,11,12,10,9,12,12,12,12,10,10,10,10,9,10,10,20];
   const sumCW=rawCW.reduce((a,b)=>a+b,0);
   const CW=rawCW.map(x=>(x/sumCW)*TW);
   const colX=ci=>{let x=ML;for(let i=0;i<ci;i++)x+=CW[i];return x;};
@@ -87,25 +87,26 @@ async function buildPDF(){
   // Données — dessinées AVANT les en-têtes pour qu'ils les couvrent
   circuits.forEach((circ,i)=>{
     const ry=dataRowY(i), ytxt=ry+HRD*0.28;
-    const cols=[circ.groupe||'',circ.desig||'',circ.ctype||'',circ.csect||'',circ.courbe||'',circ.inom||'',circ.icc_max_lpe||'',circ.icc_min_lpe||'',circ.icc_max_ln||'',circ.icc_min_ln||'',circ.riso||'',circ.rlo||'',circ.ddr_inom||'',circ.ddr_idelta||'',circ.ddr_temps||'',circ.champ||'',circ.chute||''];
+    const cols=[circ.groupe||'',circ.desig||'',circ.ctype||'',circ.csect||'',circ.courbe||'',circ.inom||'',circ.icc_max_lpe||'',circ.icc_min_lpe||'',circ.icc_max_ln||'',circ.icc_min_ln||'',circ.riso||'',circ.rlo||'',circ.ddr_inom||'',circ.ddr_idelta||'',circ.ddr_temps||'',circ.champ||'',circ.chute||'',circ.rem||''];
     cols.forEach((val,ci)=>{
       const x=colX(ci),w=CW[ci];let col=BLACK,f=fR,sz=5.8;
       if(val==='OK'){col=GREEN;f=fB;}if(val==='NOK'){col=REDD;f=fB;}
       const s=clip(val,w-2,sz,f);
-      ci===1?Txt(s,x+1.5,ytxt,sz,f,col):TxtC(s,x,w,ytxt,sz,f,col);
+      (ci===1||ci===17)?Txt(s,x+1.5,ytxt,sz,f,col):TxtC(s,x,w,ytxt,sz,f,col);
     });
+
   });
 
   // Grille — lignes verticales UNIQUEMENT dans la zone data (pas dans les en-têtes)
   // Lignes verticales data (grises)
-  for(let ci=1;ci<17;ci++){const x=colX(ci);L(x,TBOT,x,headerBY,MGRAY,.3);}
+  for(let ci=1;ci<18;ci++){const x=colX(ci);L(x,TBOT,x,headerBY,MGRAY,.3);}
   // Lignes horizontales data
   for(let i=0;i<NRD;i++)L(ML,dataRowY(i),ML+TW,dataRowY(i),MGRAY,.25);
 
   // ── En-têtes rowA — fonds colorés par groupe ──
   const grpDefs=[
     {c:[0,1],col:NAVY},{c:[2,3],col:NAVY},{c:[4,5],col:NAVY},
-    {c:[6,7,8,9,10,11],col:NAVY},{c:[12,13,14],col:NAVY},{c:[15,16],col:NAVY}
+    {c:[6,7,8,9,10,11],col:NAVY},{c:[12,13,14],col:NAVY},{c:[15,16],col:NAVY},{c:[17],col:NAVY}
   ];
   grpDefs.forEach(g=>{
     const x=colX(g.c[0]),w=g.c.reduce((a,c)=>a+CW[c],0);
@@ -114,16 +115,16 @@ async function buildPDF(){
 
   // ── rowB — même couleur de fond que le groupe rowA correspondant ──
   // Mapping colonne → couleur de groupe
-  const colGrpColor=Array(17).fill(NAVY);
-  for(let ci=0;ci<17;ci++){
+  const colGrpColor=Array(18).fill(NAVY);
+  for(let ci=0;ci<18;ci++){
     const x=colX(ci),w=CW[ci];
     R(x,headerBY,w,HRB,colGrpColor[ci]);
   }
 
   // ── Séparateurs entre groupes : blanc, remontent dans rowA ──
   // Frontières de groupes aux colonnes : 2, 4, 6, 12, 15
-  const grpBoundaries=[1,2,4,6,12,15];
-  for(let ci=1;ci<17;ci++){
+  const grpBoundaries=[1,2,4,6,12,15,17];
+  for(let ci=1;ci<18;ci++){
     const x=colX(ci);
     if(grpBoundaries.includes(ci)){
       // Ligne blanche haute — remonte dans rowA
@@ -134,7 +135,7 @@ async function buildPDF(){
     }
   }
   // Textes rowA (groupes)
-  [{c:[0],l:T.pdfGrpGroupe},{c:[1],l:T.pdfGrpPartie},{c:[2,3],l:T.pdfGrpCana},{c:[4,5],l:T.pdfGrpCoupe},{c:[6,7,8,9,10,11],l:T.pdfGrpMes},{c:[12,13,14],l:T.pdfGrpDdr},{c:[15,16],l:T.pdfGrpMes}].forEach(g=>{
+  [{c:[0],l:T.pdfGrpGroupe},{c:[1],l:T.pdfGrpPartie},{c:[2,3],l:T.pdfGrpCana},{c:[4,5],l:T.pdfGrpCoupe},{c:[6,7,8,9,10,11],l:T.pdfGrpMes},{c:[12,13,14],l:T.pdfGrpDdr},{c:[15,16],l:T.pdfGrpMes},{c:[17],l:'Rem.'}].forEach(g=>{
     const x=colX(g.c[0]),w=g.c.reduce((a,c)=>a+CW[c],0);
     TxtC(g.l,x,w,headerAY+1.8*MM,5.5,fB,WHITE);
   });

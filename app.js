@@ -124,11 +124,13 @@ function addCircuit(data){
     <span class="sub-lbl" data-lbl="sublDdr">${T.sublDdr}</span>
     <div class="mg">
       <div class="mf"><label data-lbl="lblDdrInom">${T.lblDdrInom}</label><input type="number" id="ddr_inom_${id}" value="${(data&&data.ddr_inom)||''}"/></div>
-      <div class="mf"><label data-lbl="lblDdrIdelta">${T.lblDdrIdelta}</label><input type="number" id="ddr_idelta_${id}" value="${(data&&data.ddr_idelta)||''}" placeholder="mA"/></div>
+      <div class="mf"><label data-lbl="lblDdrIdelta">${T.lblDdrIdelta}</label><input type="text" id="ddr_idelta_${id}" value="${(data&&data.ddr_idelta)||''}" placeholder="mA" list="idelta-list-${id}" autocomplete="off"/><datalist id="idelta-list-${id}"><option value="10 mA"/><option value="15 mA"/><option value="30 mA"/><option value="300 mA"/></datalist></div>
       <div class="mf"><label data-lbl="lblDdrTemps">${T.lblDdrTemps}</label><input type="number" id="ddr_temps_${id}" value="${(data&&data.ddr_temps)||''}"/></div>
       <div class="mf"><label data-lbl="lblChamp">${T.lblChamp}</label><select id="champ_${id}"><option value="">—</option><option>OK</option><option>NOK</option><option>N/A</option></select></div>
       <div class="mf"><label data-lbl="lblChute">${T.lblChute}</label><input type="number" step="0.1" id="chute_${id}" value="${(data&&data.chute)||''}"/></div>
-    </div>`;
+    </div>
+    <span class="sub-lbl" data-lbl="sublRem">${T.sublRem||'Remarque'}</span>
+    <textarea id="rem_${id}" rows="2" placeholder="${T.lblRemCircuit||'Remarque sur ce circuit...'}" style="border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;background:#fff;color:var(--text);width:100%;outline:none;resize:vertical;min-height:48px;">${(data&&data.rem)||''}</textarea>`;
   box.appendChild(d);
   if(data){if(data.courbe)$('courbe_'+id).value=data.courbe;if(data.ddr_idelta)$('ddr_idelta_'+id).value=data.ddr_idelta;if(data.champ)$('champ_'+id).value=data.champ;}
   updateBadge();
@@ -150,7 +152,7 @@ function saveData(){
   const d={lang:currentLang};
   FIELDS.forEach(f=>d[f]=gv(f));
   d.sigData=sigData;
-  d.circuits=circuitIds.filter(id=>!!$('cc-'+id)).map(id=>({groupe:gv('groupe_'+id),desig:gv('desig_'+id),ctype:gv('ctype_'+id),csect:gv('csect_'+id),courbe:gv('courbe_'+id),inom:gv('inom_'+id),icc_max_lpe:gv('icc_max_lpe_'+id),icc_min_lpe:gv('icc_min_lpe_'+id),icc_max_ln:gv('icc_max_ln_'+id),icc_min_ln:gv('icc_min_ln_'+id),riso:gv('riso_'+id),rlo:gv('rlo_'+id),ddr_inom:gv('ddr_inom_'+id),ddr_idelta:gv('ddr_idelta_'+id),ddr_temps:gv('ddr_temps_'+id),champ:gv('champ_'+id),chute:gv('chute_'+id)}));
+  d.circuits=circuitIds.filter(id=>!!$('cc-'+id)).map(id=>({groupe:gv('groupe_'+id),desig:gv('desig_'+id),ctype:gv('ctype_'+id),csect:gv('csect_'+id),courbe:gv('courbe_'+id),inom:gv('inom_'+id),icc_max_lpe:gv('icc_max_lpe_'+id),icc_min_lpe:gv('icc_min_lpe_'+id),icc_max_ln:gv('icc_max_ln_'+id),icc_min_ln:gv('icc_min_ln_'+id),riso:gv('riso_'+id),rlo:gv('rlo_'+id),ddr_inom:gv('ddr_inom_'+id),ddr_idelta:gv('ddr_idelta_'+id),ddr_temps:gv('ddr_temps_'+id),champ:gv('champ_'+id),chute:gv('chute_'+id),rem:gv('rem_'+id)}));
   d.sigData=sigData;
   try{localStorage.setItem(SKEY,JSON.stringify(d));markSaved();}catch(e){showToast('Erreur sauvegarde');}
 }
@@ -185,7 +187,8 @@ function collectAll(){
     icc_max_ln:gv('icc_max_ln_'+id),icc_min_ln:gv('icc_min_ln_'+id),
     riso:gv('riso_'+id),rlo:gv('rlo_'+id),
     ddr_inom:gv('ddr_inom_'+id),ddr_idelta:gv('ddr_idelta_'+id),
-    ddr_temps:gv('ddr_temps_'+id),champ:gv('champ_'+id),chute:gv('chute_'+id)
+    ddr_temps:gv('ddr_temps_'+id),champ:gv('champ_'+id),chute:gv('chute_'+id),
+    rem:gv('rem_'+id)
   }));
   return d;
 }
