@@ -90,3 +90,13 @@ body{padding-bottom:80px;}
   background:#eef0f5;
   border-color:var(--navy);
 }
+
+/* Cable help modal */
+.cable-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:flex-end;justify-content:center;}
+.cable-modal{background:#fff;border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:600px;max-height:80vh;overflow-y:auto;}
+.cable-modal-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.cable-modal-hd h3{font-size:15px;font-weight:700;color:var(--navy);}
+.cable-modal table{width:100%;border-collapse:collapse;font-size:12px;}
+.cable-modal th{background:var(--navy);color:#fff;padding:7px 8px;font-size:11px;font-weight:700;text-align:left;}
+.cable-modal tr:last-child td{border-bottom:none!important;}
+.cable-btn-close{margin-top:14px;width:100%;background:var(--red);color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;}

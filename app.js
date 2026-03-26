@@ -104,7 +104,14 @@ function addCircuit(data){
     </div>
     <span class="sub-lbl" data-lbl="sublCana">${T.sublCana}</span>
     <div class="mg">
-      <div class="mf"><label data-lbl="lblCtype">${T.lblCtype}</label><input type="text" id="ctype_${id}" value="${(data&&data.ctype)||''}" placeholder="NYM"/></div>
+      <div class="mf">
+        <div style="display:flex;align-items:center;gap:5px;margin-bottom:2px;">
+          <label data-lbl="lblCtype" style="font-size:9.5px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.2px;margin:0;">${T.lblCtype}</label>
+          <button type="button" onclick="showCableHelp()" style="width:16px;height:16px;border-radius:50%;border:1.5px solid var(--navy);background:var(--navy);color:#fff;font-size:9px;font-weight:700;cursor:pointer;line-height:1;padding:0;flex-shrink:0;" title="Aide">i</button>
+        </div>
+        <input type="text" id="ctype_${id}" value="${(data&&data.ctype)||''}" placeholder="NYM" list="ctype-list" autocomplete="off"/>
+        <datalist id="ctype-list"><option value="H07V-U"/><option value="CH-N1VV-U"/><option value="H05VV-F"/><option value="CH-N1VV-K"/><option value="H07BQ-F"/><option value="CH-N1VCV-U"/></datalist>
+      </div>
       <div class="mf"><label data-lbl="lblCsect">${T.lblCsect}</label><input type="text" id="csect_${id}" value="${(data&&data.csect)||''}" placeholder="3×2.5 mm²"/></div>
     </div>
     <span class="sub-lbl" data-lbl="sublCoupe">${T.sublCoupe}</span>
@@ -142,6 +149,29 @@ function removeCircuit(id){
   circuitIds.forEach((cid,i)=>{const b=$('cn-'+cid);if(b)b.textContent=i+1;});
   updateBadge();saveData();
 }
+
+// ── Aide-mémoire câbles ───────────────────────────────────────
+function showCableHelp(){
+  const T = I18N[currentLang];
+  const modal = document.getElementById('cable-help-modal');
+  // Update table content based on language
+  document.getElementById('cable-help-tbody').innerHTML = T.cableTable.map(r=>
+    \`<tr>
+      <td style="padding:6px 8px;border-bottom:1px solid #e8ebf5;font-size:12px;font-weight:600;color:var(--navy);white-space:nowrap;">\${r[0]}</td>
+      <td style="padding:6px 8px;border-bottom:1px solid #e8ebf5;font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;">\${r[1]}</td>
+      <td style="padding:6px 8px;border-bottom:1px solid #e8ebf5;font-size:12px;color:var(--muted);line-height:1.4;">\${r[2]}</td>
+    </tr>\`
+  ).join('');
+  document.getElementById('cable-help-title').textContent = T.cableHelpTitle||'Types de câbles';
+  document.getElementById('cable-help-col1').textContent = T.cableCol1||'Nom courant';
+  document.getElementById('cable-help-col2').textContent = T.cableCol2||'Désignation';
+  document.getElementById('cable-help-col3').textContent = T.cableCol3||'Description';
+  modal.style.display = 'flex';
+}
+function closeCableHelp(){
+  document.getElementById('cable-help-modal').style.display='none';
+}
+
 function updateBadge(){$('cct').textContent=circuitIds.length;}
 
 // ═══════════════════════════════════════════════════════════

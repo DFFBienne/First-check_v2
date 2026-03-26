@@ -140,6 +140,28 @@
 <input type="file" id="importInput" accept=".json,.txt" style="display:none" onchange="importData(event)"/>
 <div class="toast" id="toast"></div>
 
+
+<!-- Modal aide-mémoire câbles -->
+<div id="cable-help-modal" class="cable-modal-bg" style="display:none;" onclick="if(event.target===this)closeCableHelp()">
+  <div class="cable-modal">
+    <div class="cable-modal-hd">
+      <h3 id="cable-help-title">Types de câbles</h3>
+      <button onclick="closeCableHelp()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);line-height:1;">×</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th id="cable-help-col1">Nom courant</th>
+          <th id="cable-help-col2">Désignation</th>
+          <th id="cable-help-col3">Description</th>
+        </tr>
+      </thead>
+      <tbody id="cable-help-tbody"></tbody>
+    </table>
+    <button class="cable-btn-close" onclick="closeCableHelp()">Fermer</button>
+  </div>
+</div>
+
 <!-- Modal choix import -->
 <div id="import-modal" class="sig-modal-bg" style="display:none;">
   <div class="sig-modal">
