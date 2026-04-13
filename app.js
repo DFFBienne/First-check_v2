@@ -1,4 +1,4 @@
-/* Application SBB - Logique formulaire, sauvegarde, circuits */
+/* Application SBB */
 let currentLang = 'fr';
 
 function setLang(lang) {
@@ -150,27 +150,19 @@ function removeCircuit(id){
   updateBadge();saveData();
 }
 
-// ── Aide-mémoire câbles ───────────────────────────────────────
+// ── Aide-mémoire câbles ──────────────────────────────────────
 function showCableHelp(){
-  const T = I18N[currentLang];
-  const modal = document.getElementById('cable-help-modal');
-  // Update table content based on language
-  document.getElementById('cable-help-tbody').innerHTML = T.cableTable.map(r=>
-    \`<tr>
-      <td style="padding:6px 8px;border-bottom:1px solid #e8ebf5;font-size:12px;font-weight:600;color:var(--navy);white-space:nowrap;">\${r[0]}</td>
-      <td style="padding:6px 8px;border-bottom:1px solid #e8ebf5;font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;">\${r[1]}</td>
-      <td style="padding:6px 8px;border-bottom:1px solid #e8ebf5;font-size:12px;color:var(--muted);line-height:1.4;">\${r[2]}</td>
-    </tr>\`
+  const T=I18N[currentLang];
+  document.getElementById('cable-help-tbody').innerHTML=T.cableTable.map(r=>
+    '<tr><td style="padding:6px 8px;border-bottom:1px solid #e8ebf5;font-size:12px;font-weight:600;color:var(--navy);white-space:nowrap;">'+r[0]+'</td><td style="padding:6px 8px;border-bottom:1px solid #e8ebf5;font-size:12px;font-weight:600;white-space:nowrap;">'+r[1]+'</td><td style="padding:6px 8px;border-bottom:1px solid #e8ebf5;font-size:12px;color:var(--muted);line-height:1.4;">'+r[2]+'</td></tr>'
   ).join('');
-  document.getElementById('cable-help-title').textContent = T.cableHelpTitle||'Types de câbles';
-  document.getElementById('cable-help-col1').textContent = T.cableCol1||'Nom courant';
-  document.getElementById('cable-help-col2').textContent = T.cableCol2||'Désignation';
-  document.getElementById('cable-help-col3').textContent = T.cableCol3||'Description';
-  modal.style.display = 'flex';
+  document.getElementById('cable-help-title').textContent=T.cableHelpTitle||'Types de câbles';
+  document.getElementById('cable-help-col1').textContent=T.cableCol1||'Nom courant';
+  document.getElementById('cable-help-col2').textContent=T.cableCol2||'Désignation';
+  document.getElementById('cable-help-col3').textContent=T.cableCol3||'Description';
+  document.getElementById('cable-help-modal').style.display='flex';
 }
-function closeCableHelp(){
-  document.getElementById('cable-help-modal').style.display='none';
-}
+function closeCableHelp(){document.getElementById('cable-help-modal').style.display='none';}
 
 function updateBadge(){$('cct').textContent=circuitIds.length;}
 
@@ -237,9 +229,6 @@ function exportData(){
   showToast('Export téléchargé ✓');
 }
 
-// ── Import pending data (stored while modal is open) ──────────────────
-let _importPending = null;
-
 function importData(evt){
   const file=evt.target.files[0]; if(!file)return;
   const reader=new FileReader();
@@ -247,8 +236,9 @@ function importData(evt){
     try{
       const d=JSON.parse(e.target.result);
       if(!d._app||d._app!=='SBB_Protocole') throw new Error('Fichier non reconnu');
-      _importPending = d;
-      $('import-modal').style.display='flex';
+
+      // Afficher modal de choix
+      showImportModal(d);
     }catch(err){
       showToast('Erreur import: '+err.message, 4000);
     }
@@ -257,19 +247,57 @@ function importData(evt){
   reader.readAsText(file);
 }
 
-function closeImportModal(){
-  $('import-modal').style.display='none';
-  _importPending = null;
+function showImportModal(d){
+  // Compter les circuits à importer qui n'existent pas déjà
+  const existingDesig = circuitIds
+    .filter(id=>!!$('cc-'+id))
+    .map(id=>gv('groupe_'+id)+'|'+gv('desig_'+id));
+  const newCircuits = (d.circuits||[]).filter(c=>{
+    const key=(c.groupe||'')+'|'+(c.desig||'');
+    return !existingDesig.includes(key);
+  });
+
+  const modal = document.createElement('div');
+  modal.id = 'import-modal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:flex-end;justify-content:center;';
+  modal.innerHTML=`
+    <div style="background:#fff;border-radius:20px 20px 0 0;padding:24px;width:100%;max-width:480px;">
+      <div style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:8px;">📂 Importer un fichier</div>
+      <div style="font-size:13px;color:#555;margin-bottom:20px;line-height:1.5;">
+        <b>${(d.circuits||[]).length}</b> circuit(s) dans le fichier —
+        <b>${newCircuits.length}</b> nouveau(x) non présent(s) dans le formulaire actuel.
+      </div>
+
+      <button onclick="doImport('replace')" style="width:100%;background:var(--red);color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;text-align:left;padding-left:16px;">
+        🔄 &nbsp;Tout remplacer
+        <div style="font-size:11px;font-weight:400;margin-top:2px;opacity:.85;">Écrase toutes les données actuelles avec le fichier importé</div>
+      </button>
+
+      <button onclick="doImport('merge')" style="width:100%;background:var(--navy);color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;text-align:left;padding-left:16px;" ${newCircuits.length===0?'disabled style="opacity:.4;cursor:not-allowed;width:100%;background:var(--navy);color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;text-align:left;padding-left:16px;"':''}>
+        ➕ &nbsp;Ajouter les nouveaux circuits seulement
+        <div style="font-size:11px;font-weight:400;margin-top:2px;opacity:.85;">${newCircuits.length===0?'Aucun nouveau circuit à ajouter':'Ajoute '+newCircuits.length+' circuit(s) — garde toutes les données actuelles'}</div>
+      </button>
+
+      <button onclick="document.getElementById('import-modal').remove()" style="width:100%;background:#fff;color:var(--muted);border:1px solid var(--border);border-radius:10px;padding:12px;font-size:14px;cursor:pointer;">
+        Annuler
+      </button>
+    </div>`;
+
+  // Store data for doImport
+  modal._importData = d;
+  modal._newCircuits = newCircuits;
+  document.body.appendChild(modal);
 }
 
 function doImport(mode){
-  $('import-modal').style.display='none';
-  const d = _importPending;
-  _importPending = null;
-  if(!d) return;
+  const modal = $('import-modal');
+  if(!modal) return;
+  const d = modal._importData;
+  const newCircuits = modal._newCircuits;
+  modal.remove();
 
   if(mode === 'replace'){
-    // ── Mode remplacement total ──────────────────────────────
+    // ── Remplacement total ────────────────────────────────
     circuitIds=[]; nextId=1;
     $('circuits-container').innerHTML=`<p id="no-circuit-msg" style="text-align:center;color:var(--muted);font-size:13px;padding:8px 0;">${I18N[currentLang].noCircuit}</p>`;
     if(d.lang&&I18N[d.lang]){
@@ -282,31 +310,82 @@ function doImport(mode){
     if(d.sigData){ sigData=d.sigData; }
     localStorage.setItem(SKEY,JSON.stringify(d));
     markSaved(); updateBadge();
-    showToast('Import complet ✓');
+    showToast('Import complet ✓ ('+d.circuits.length+' circuits)');
 
   } else if(mode === 'merge'){
-    // ── Mode fusion — ajoute uniquement les circuits absents ──
-    if(!d.circuits||!d.circuits.length){
-      showToast('Aucun circuit à ajouter');
-      return;
+    // ── Fusion — ajoute uniquement les nouveaux circuits ──
+    if(newCircuits.length === 0){ showToast('Aucun nouveau circuit à ajouter'); return; }
+    // Vérifier la limite de 18
+    const available = 18 - circuitIds.length;
+    const toAdd = newCircuits.slice(0, available);
+    toAdd.forEach(c=>addCircuit(c));
+    if(newCircuits.length > available){
+      showToast(`${toAdd.length} circuit(s) ajouté(s) — limite 18 atteinte`, 3000);
+    } else {
+      showToast(`${toAdd.length} nouveau(x) circuit(s) ajouté(s) ✓`);
     }
-    // Collect existing designations to detect duplicates
-    const existingDesigs = new Set(
-      circuitIds
-        .filter(id=>!!$('cc-'+id))
-        .map(id=>gv('groupe_'+id)+'|'+gv('desig_'+id))
-    );
-    let added = 0;
-    d.circuits.forEach(c=>{
-      const key = (c.groupe||'')+'|'+(c.desig||'');
-      if(!existingDesigs.has(key)){
-        if(circuitIds.length < 18){
-          addCircuit(c);
-          added++;
-        }
-      }
-    });
     saveData();
-    showToast(added > 0 ? `${added} circuit(s) ajouté(s) ✓` : 'Aucun nouveau circuit à ajouter');
+  }
+}
+async function generatePDF(){
+  saveData();
+  const btn=$('pdfBtn');btn.disabled=true;$('btn-pdf-lbl').textContent=I18N[currentLang].pdfLoading;
+  try{const {blob,filename}=await buildPDFBlob();const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=filename;a.target="_blank";document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(()=>URL.revokeObjectURL(url),3000);showToast(I18N[currentLang].pdfOk);}
+  catch(e){console.error(e);showToast('Erreur: '+e.message,4000);}
+  finally{btn.disabled=false;$('btn-pdf-lbl').textContent=I18N[currentLang].btnPdf;}
+}
+
+let _shareMode=null,_shareFilename=null;
+function openShareModal(mode){
+  _shareMode=mode;
+  const T=I18N[currentLang];
+  document.getElementById('share-modal').style.display='flex';
+  document.getElementById('share-modal-title').textContent=mode==='pdf'?(T.sharePdfTitle||'Partager le PDF'):(T.shareJsonTitle||'Partager la sauvegarde');
+  document.getElementById('share-modal-desc').textContent=mode==='pdf'?(T.sharePdfDesc||''):(T.shareJsonDesc||'');
+  const nb=document.getElementById('share-btn-native');if(nb)nb.style.display=navigator.share?'flex':'none';
+}
+function closeShareModal(){document.getElementById('share-modal').style.display='none';_shareMode=null;}
+async function shareAction(action){
+  closeShareModal();
+  const T=I18N[currentLang];
+  let blob,filename;
+  if(_shareMode==='pdf'){
+    const btn=document.getElementById('pdfBtn');
+    btn.disabled=true;document.getElementById('btn-pdf-lbl').textContent=T.pdfLoading||'⏳ Génération...';
+    try{const r=await buildPDFBlob();blob=r.blob;filename=r.filename;showToast(T.pdfOk||'PDF généré ✓');}
+    catch(e){console.error(e);showToast('Erreur: '+e.message,4000);return;}
+    finally{btn.disabled=false;document.getElementById('btn-pdf-lbl').textContent=T.btnPdf||'Générer PDF';}
+  } else {
+    const d=collectAll();const json=JSON.stringify(d,null,2);
+    blob=new Blob([json],{type:'application/json'});
+    filename='SBB_Protocole_'+(d.num_tableau||'T00').replace(/[\s/\\]/g,'_')+'_'+(d.date_sig||new Date().toISOString().slice(0,10))+'.json';
+  }
+  await _doShareAction(action,blob,filename,_shareMode==='pdf'?'application/pdf':'application/json');
+}
+async function _doShareAction(action, blob, filename, mimeType){
+  const url = URL.createObjectURL(blob);
+
+  if(action === 'save'){
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.target = '_blank';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 3000);
+
+  } else if(action === 'native'){
+    try {
+      const file = new File([blob], filename, {type: mimeType});
+      if(navigator.canShare && navigator.canShare({files: [file]})){
+        await navigator.share({files: [file], title: 'SBB CFF FFS — ' + filename, text: filename});
+      } else if(navigator.share){
+        // Fallback: share URL only
+        const a = document.createElement('a');
+        a.href = url; a.download = filename;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        await navigator.share({title: 'SBB CFF FFS — ' + filename, text: filename});
+      }
+    } catch(e) {
+      if(e.name !== 'AbortError') showToast('Erreur: ' + e.message, 3000);
+    }
+    setTimeout(() => URL.revokeObjectURL(url), 3000);
   }
 }

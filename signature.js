@@ -1,4 +1,6 @@
-/* Signature pad tactile */
+/* Signature pad */
+// ═══════════════════════════════════════════════════════════
+// SIGNATURE PAD
 // ═══════════════════════════════════════════════════════════
 let sigData = null; // base64 PNG of signature
 
@@ -84,6 +86,10 @@ function clearSignature(){
 
 // Close modal on backdrop click
 document.addEventListener('click', e=>{ if(e.target.id==='sig-modal') $('sig-modal').style.display='none'; });
+
+// ═══════════════════════════════════════════════════════════
+// SHARE MODAL
+// ═══════════════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded',()=>{
   $('date_sig').value=new Date().toISOString().slice(0,10);
   loadData();
