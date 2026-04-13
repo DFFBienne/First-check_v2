@@ -1499,22 +1499,7 @@ window.addEventListener('DOMContentLoaded',()=>{
 
 
 
-<div id="share-modal" class="sig-modal-bg" style="display:none;" onclick="if(event.target===this)closeShareModal()">
-  <div class="sig-modal">
-    <div class="sig-modal-hd">
-      <h3 id="share-modal-title">Partager</h3>
-      <button onclick="closeShareModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);line-height:1;">×</button>
-    </div>
-    <p id="share-modal-desc" style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5;"></p>
-    <div style="display:flex;flex-direction:column;gap:10px;">
-      <button class="share-action-btn" onclick="shareAction('save')"><span class="share-icon">💾</span><div><div class="share-lbl">Enregistrer sur l'appareil</div><div class="share-sub">Téléchargement direct</div></div></button>
-      <button class="share-action-btn" onclick="shareAction('mail')"><span class="share-icon">✉️</span><div><div class="share-lbl">Envoyer par e-mail</div><div class="share-sub">Ouvre votre application e-mail</div></div></button>
-      <button class="share-action-btn" onclick="shareAction('teams')"><span class="share-icon">💬</span><div><div class="share-lbl">Envoyer via Teams</div><div class="share-sub">Ouvre Microsoft Teams</div></div></button>
-      <button class="share-action-btn" id="share-btn-native" onclick="shareAction('native')" style="display:none;"><span class="share-icon">📤</span><div><div class="share-lbl">Autres applications...</div><div class="share-sub">WhatsApp, Drive, Messages...</div></div></button>
-    </div>
-    <button onclick="closeShareModal()" style="margin-top:12px;background:none;border:none;color:var(--muted);font-size:13px;padding:8px;cursor:pointer;text-decoration:underline;width:100%;">Annuler</button>
-  </div>
-</div>
+
 <div id="cable-help-modal" class="cable-modal-bg" style="display:none;" onclick="if(event.target===this)closeCableHelp()">
   <div class="cable-modal">
     <div class="cable-modal-hd">
@@ -1544,14 +1529,14 @@ window.addEventListener('DOMContentLoaded',()=>{
     <div style="display:flex;flex-direction:column;gap:10px;">
       <button class="share-action-btn" onclick="shareAction('save')">
         <span class="share-icon">💾</span>
-        <div><div class="share-lbl" id="share-lbl-save">Enregistrer sur l'appareil</div><div class="share-sub">Téléchargement direct</div></div>
+        <div><div class="share-lbl">Enregistrer sur l'appareil</div><div class="share-sub">Téléchargement direct</div></div>
       </button>
-      <button class="share-action-btn" id="share-btn-native" onclick="shareAction('native')">
+      <button class="share-action-btn" id="share-btn-native" style="display:none;" onclick="shareAction('native')">
         <span class="share-icon">📤</span>
-        <div><div class="share-lbl" id="share-lbl-native">Autres applications...</div><div class="share-sub">WhatsApp, Drive, Messages...</div></div>
+        <div><div class="share-lbl">Autres applications...</div><div class="share-sub">WhatsApp, Drive, Messages...</div></div>
       </button>
     </div>
-    <button onclick="closeShareModal()" style="margin-top:12px;background:none;border:none;color:var(--muted);font-size:13px;padding:8px;cursor:pointer;text-decoration:underline;width:100%;" id="share-cancel-btn">Annuler</button>
+    <button onclick="closeShareModal()" style="margin-top:12px;background:none;border:none;color:var(--muted);font-size:13px;padding:8px;cursor:pointer;text-decoration:underline;width:100%;">Annuler</button>
   </div>
 </div>
 <div id="sig-modal" class="sig-modal-bg" style="display:none;">
