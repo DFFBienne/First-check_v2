@@ -335,7 +335,7 @@ async function generatePDF(){
   finally{btn.disabled=false;$('btn-pdf-lbl').textContent=I18N[currentLang].btnPdf;}
 }
 
-let _shareMode=null,_shareFilename=null;
+let _shareMode=null,_shareFilename=null,_sharePdfBlob=null;
 function openShareModal(mode){
   saveData();
   _shareMode = mode;
@@ -690,7 +690,7 @@ async function generatePDF(){
   finally{btn.disabled=false;$('btn-pdf-lbl').textContent=I18N[currentLang].btnPdf;}
 }
 
-let _shareMode=null,_shareFilename=null;
+let _shareMode=null,_shareFilename=null,_sharePdfBlob=null;
 function openShareModal(mode){
   _shareMode=mode;
   const T=I18N[currentLang];
@@ -699,13 +699,14 @@ function openShareModal(mode){
   document.getElementById('share-modal-desc').textContent=mode==='pdf'?(T.sharePdfDesc||''):(T.shareJsonDesc||'');
   const nb=document.getElementById('share-btn-native');if(nb)nb.style.display=navigator.share?'flex':'none';
 }
-function closeShareModal(){document.getElementById('share-modal').style.display='none';_shareMode=null;}
+function closeShareModal(){document.getElementById('share-modal').style.display='none';}
 async function shareAction(action){
+  const mode = _shareMode; // capture before closeShareModal resets it
   closeShareModal();
   const T = I18N[currentLang];
   let blob, filename, mimeType;
 
-  if(_shareMode === 'pdf'){
+  if(mode === 'pdf'){
     const btn = document.getElementById('pdfBtn');
     const lbl = document.getElementById('btn-pdf-lbl');
     btn.disabled = true;
@@ -723,7 +724,7 @@ async function shareAction(action){
       btn.disabled = false;
       lbl.textContent = T.btnPdf || 'Generer PDF';
     }
-  } else {
+  } else { // mode === 'json'
     const d = collectAll();
     const json = JSON.stringify(d, null, 2);
     blob = new Blob([json], {type: 'application/json'});
@@ -734,7 +735,7 @@ async function shareAction(action){
   }
 
   await _doShareAction(action, blob, filename, mimeType);
-  if(_shareMode === 'pdf') showToast(T.pdfOk || 'PDF genere');
+  if(mode === 'pdf') showToast(T.pdfOk || 'PDF généré ✓');
 }
 async function _doShareAction(action, blob, filename, mimeType){
   const url = URL.createObjectURL(blob);
