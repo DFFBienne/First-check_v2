@@ -371,35 +371,37 @@ async function _doShareAction(action, blob, filename, mimeType){
     setTimeout(() => URL.revokeObjectURL(url), 3000);
 
   } else if(action === 'native'){
-    try {
-      // application/json non supporté par Web Share API → text/plain
-      const shareType     = mimeType === 'application/json' ? 'text/plain' : mimeType;
-      const shareFilename = mimeType === 'application/json'
-        ? filename.replace('.json', '.txt')
-        : filename;
+    // Étape 1 : télécharger le fichier sur l'appareil
+    const shareFilename = mimeType === 'application/json'
+      ? filename.replace('.json', '.txt')
+      : filename;
+    const dlBlob = mimeType === 'application/json'
+      ? new Blob([await blob.text()], {type: 'text/plain'})
+      : blob;
+    const dlUrl = URL.createObjectURL(dlBlob);
+    const a = document.createElement('a');
+    a.href = dlUrl; a.download = shareFilename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(dlUrl), 3000);
 
-      const file = new File([blob], shareFilename, {type: shareType, lastModified: Date.now()});
-      const shareData = {
-        files: [file],
-        title: shareFilename,               // nom lisible par Outlook
-        text:  shareFilename                // fallback texte = nom du fichier
-      };
-
-      if(navigator.canShare && navigator.canShare(shareData)){
-        await navigator.share(shareData);
-      } else if(navigator.canShare && navigator.canShare({files:[file]})){
-        await navigator.share({files:[file], title: shareFilename, text: shareFilename});
-      } else if(navigator.share){
-        // Fallback sans fichier : télécharger d'abord puis ouvrir share
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob); a.download = shareFilename;
-        document.body.appendChild(a); a.click(); document.body.removeChild(a);
-        await navigator.share({title: shareFilename, text: shareFilename});
+    // Étape 2 : essayer Web Share API si disponible
+    if(navigator.share){
+      try {
+        const file = new File([dlBlob], shareFilename, {type: dlBlob.type, lastModified: Date.now()});
+        if(navigator.canShare && navigator.canShare({files:[file]})){
+          await navigator.share({files:[file], title: shareFilename, text: shareFilename});
+        } else {
+          await navigator.share({title: shareFilename, text: shareFilename});
+        }
+      } catch(e) {
+        if(e.name !== 'AbortError'){
+          // Web Share échoue (ex: Outlook) → fichier déjà téléchargé, informer l'utilisateur
+          showToast('Fichier téléchargé — attachez-le manuellement', 3500);
+        }
       }
-    } catch(e) {
-      if(e.name !== 'AbortError') showToast('Erreur: ' + e.message, 3000);
+    } else {
+      showToast('Fichier téléchargé ✓', 2500);
     }
-    setTimeout(() => URL.revokeObjectURL(url), 3000);
   }
 }
 
