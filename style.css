@@ -101,3 +101,4 @@ body{padding-bottom:80px;}
 .share-icon{font-size:24px;flex-shrink:0;}
 .share-lbl{font-size:14px;font-weight:700;color:var(--navy);}
 .share-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.btn-io-lbl{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;}

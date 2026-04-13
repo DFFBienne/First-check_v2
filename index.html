@@ -16,6 +16,7 @@
   <div class="hdr-top">
     <div class="hdr-logo-row">
       <div class="hdr-logo"><img src="logo.jpg" alt="SBB CFF FFS" style="height:17px;display:block;"/></div>
+      <div style="font-size:9px;color:rgba(255,255,255,.6);font-weight:600;letter-spacing:.5px;margin-top:2px;">v1.4.0</div>
     </div>
     <div class="hdr-bottom-row">
       <div class="hdr-title" id="hdr-title">Premières vérifications<br>par l'installateur électricien</div>
@@ -126,11 +127,13 @@
 
 <div class="bottom">
   <button class="btn-clear" onclick="clearData()" title="Effacer">🗑</button>
-  <button class="btn-io" onclick="openShareModal('json')" title="Exporter JSON">
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+  <button class="btn-io btn-io-lbl" onclick="openShareModal('json')" title="Exporter JSON">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    <span style="font-size:9px;font-weight:700;letter-spacing:.3px;">JSON</span>
   </button>
-  <button class="btn-io" onclick="$('importInput').click()" title="Importer">
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+  <button class="btn-io btn-io-lbl" onclick="$('importInput').click()" title="Importer JSON">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    <span style="font-size:9px;font-weight:700;letter-spacing:.3px;">JSON</span>
   </button>
   <button class="btn-pdf" id="pdfBtn" onclick="openShareModal('pdf')">
     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
