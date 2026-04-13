@@ -238,6 +238,11 @@
   </div>
 </div>
 
+<div id="update-bar" class="update-bar">
+  <div class="update-bar-txt">🔄 Nouvelle version disponible !</div>
+  <button class="update-bar-btn" onclick="applyUpdate()">Mettre à jour</button>
+</div>
+
 <script src="pdf-lib.min.js"></script>
 <script src="logo.js"></script>
 <script src="i18n.js"></script>
@@ -246,12 +251,58 @@
 <script src="signature.js"></script>
 
 <script>
+// ── Service Worker + détection de mise à jour ──────────────
+let _newSW = null;
+
+function applyUpdate() {
+  if (_newSW) {
+    _newSW.postMessage('skipWaiting');
+  }
+  window.location.reload();
+}
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js')
-      .then(reg => console.log('SW registered:', reg.scope))
+      .then(reg => {
+        // Vérifier si une mise à jour est déjà en attente
+        if (reg.waiting) showUpdateBar(reg.waiting);
+
+        // Nouvelle mise à jour détectée pendant la navigation
+        reg.addEventListener('updatefound', () => {
+          const newSW = reg.installing;
+          newSW.addEventListener('statechange', () => {
+            if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+              showUpdateBar(newSW);
+            }
+          });
+        });
+      })
       .catch(err => console.warn('SW registration failed:', err));
+
+    // Rechargement automatique quand le nouveau SW prend le contrôle
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      window.location.reload();
+    });
   });
+}
+
+function showUpdateBar(sw) {
+  _newSW = sw;
+  const bar = document.getElementById('update-bar');
+  if (bar) {
+    // Traduire selon la langue active
+    const lang = (typeof currentLang !== 'undefined') ? currentLang : 'fr';
+    const msgs = {
+      fr: { txt: '🔄 Nouvelle version disponible !', btn: 'Mettre à jour' },
+      de: { txt: '🔄 Neue Version verfügbar!',       btn: 'Aktualisieren' },
+      it: { txt: '🔄 Nuova versione disponibile!',   btn: 'Aggiornare' }
+    };
+    const m = msgs[lang] || msgs.fr;
+    bar.querySelector('.update-bar-txt').textContent = m.txt;
+    bar.querySelector('.update-bar-btn').textContent = m.btn;
+    bar.classList.add('show');
+  }
 }
 </script>
 </body>
