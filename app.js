@@ -372,16 +372,29 @@ async function _doShareAction(action, blob, filename, mimeType){
 
   } else if(action === 'native'){
     try {
-      // application/json n'est pas supporté par Web Share API — utiliser text/plain
-      const shareType = mimeType === 'application/json' ? 'text/plain' : mimeType;
+      // application/json non supporté par Web Share API → text/plain
+      const shareType     = mimeType === 'application/json' ? 'text/plain' : mimeType;
       const shareFilename = mimeType === 'application/json'
         ? filename.replace('.json', '.txt')
         : filename;
-      const file = new File([blob], shareFilename, {type: shareType});
-      if(navigator.canShare && navigator.canShare({files: [file]})){
-        await navigator.share({files: [file], title: 'SBB CFF FFS — ' + filename});
+
+      const file = new File([blob], shareFilename, {type: shareType, lastModified: Date.now()});
+      const shareData = {
+        files: [file],
+        title: shareFilename,               // nom lisible par Outlook
+        text:  shareFilename                // fallback texte = nom du fichier
+      };
+
+      if(navigator.canShare && navigator.canShare(shareData)){
+        await navigator.share(shareData);
+      } else if(navigator.canShare && navigator.canShare({files:[file]})){
+        await navigator.share({files:[file], title: shareFilename, text: shareFilename});
       } else if(navigator.share){
-        await navigator.share({title: 'SBB CFF FFS — ' + filename, text: filename});
+        // Fallback sans fichier : télécharger d'abord puis ouvrir share
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob); a.download = shareFilename;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        await navigator.share({title: shareFilename, text: shareFilename});
       }
     } catch(e) {
       if(e.name !== 'AbortError') showToast('Erreur: ' + e.message, 3000);
