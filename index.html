@@ -20,7 +20,7 @@
     <div class="hdr-bottom-row">
       <div class="hdr-title" id="hdr-title">Premières vérifications<br>par l'installateur électricien</div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;">
-        <div style="font-size:9px;color:rgba(255,255,255,.55);font-weight:600;letter-spacing:.5px;">V1.0.1</div>
+        <div style="font-size:9px;color:rgba(255,255,255,.55);font-weight:600;letter-spacing:.5px;">V1.0.0</div>
         <div class="lang-switcher">
           <button class="lang-btn active" onclick="setLang('fr')">FR</button>
           <button class="lang-btn" onclick="setLang('de')">DE</button>
@@ -241,6 +241,7 @@
 <div id="update-bar" class="update-bar">
   <div class="update-bar-txt">🔄 Nouvelle version disponible !</div>
   <button class="update-bar-btn" onclick="applyUpdate()">Mettre à jour</button>
+  <button onclick="document.getElementById('update-bar').classList.remove('show')" style="background:none;border:none;color:rgba(255,255,255,.7);font-size:20px;cursor:pointer;line-height:1;padding:0 0 0 4px;flex-shrink:0;">×</button>
 </div>
 
 <script src="pdf-lib.min.js"></script>
@@ -251,13 +252,10 @@
 <script src="signature.js"></script>
 
 <script>
-// ── Service Worker + détection de mise à jour ──────────────
 let _newSW = null;
 
 function applyUpdate() {
-  if (_newSW) {
-    _newSW.postMessage('skipWaiting');
-  }
+  if (_newSW) _newSW.postMessage('skipWaiting');
   window.location.reload();
 }
 
@@ -265,10 +263,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js')
       .then(reg => {
-        // Vérifier si une mise à jour est déjà en attente
         if (reg.waiting) showUpdateBar(reg.waiting);
-
-        // Nouvelle mise à jour détectée pendant la navigation
         reg.addEventListener('updatefound', () => {
           const newSW = reg.installing;
           newSW.addEventListener('statechange', () => {
@@ -279,30 +274,24 @@ if ('serviceWorker' in navigator) {
         });
       })
       .catch(err => console.warn('SW registration failed:', err));
-
-    // Rechargement automatique quand le nouveau SW prend le contrôle
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-      window.location.reload();
-    });
+    // Pas de controllerchange auto-reload — rechargement uniquement sur clic utilisateur
   });
 }
 
 function showUpdateBar(sw) {
   _newSW = sw;
   const bar = document.getElementById('update-bar');
-  if (bar) {
-    // Traduire selon la langue active
-    const lang = (typeof currentLang !== 'undefined') ? currentLang : 'fr';
-    const msgs = {
-      fr: { txt: '🔄 Nouvelle version disponible !', btn: 'Mettre à jour' },
-      de: { txt: '🔄 Neue Version verfügbar!',       btn: 'Aktualisieren' },
-      it: { txt: '🔄 Nuova versione disponibile!',   btn: 'Aggiornare' }
-    };
-    const m = msgs[lang] || msgs.fr;
-    bar.querySelector('.update-bar-txt').textContent = m.txt;
-    bar.querySelector('.update-bar-btn').textContent = m.btn;
-    bar.classList.add('show');
-  }
+  if (!bar) return;
+  const lang = (typeof currentLang !== 'undefined') ? currentLang : 'fr';
+  const msgs = {
+    fr: { txt: '🔄 Nouvelle version disponible !', btn: 'Mettre à jour' },
+    de: { txt: '🔄 Neue Version verfügbar!',       btn: 'Aktualisieren' },
+    it: { txt: '🔄 Nuova versione disponibile!',   btn: 'Aggiornare' }
+  };
+  const m = msgs[lang] || msgs.fr;
+  bar.querySelector('.update-bar-txt').textContent = m.txt;
+  bar.querySelector('.update-bar-btn').textContent = m.btn;
+  bar.classList.add('show');
 }
 </script>
 </body>
