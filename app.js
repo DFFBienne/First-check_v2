@@ -345,12 +345,19 @@ function openShareModal(mode){
   const desc  = document.getElementById('share-modal-desc');
   if(mode === 'pdf'){
     title.textContent = T.sharePdfTitle  || 'Partager le PDF';
-    desc.textContent  = T.sharePdfDesc   || 'Le PDF sera generé puis partagé selon votre choix.';
+    desc.textContent  = T.sharePdfDesc   || 'Le PDF sera généré puis partagé selon votre choix.';
   } else {
     title.textContent = T.shareJsonTitle || 'Partager la sauvegarde JSON';
     desc.textContent  = T.shareJsonDesc  || 'Le fichier JSON sera partagé selon votre choix.';
   }
-  const nativeBtn = document.getElementById('share-btn-native');
+  // Translate button labels
+  const el = id => document.getElementById(id);
+  if(el('share-lbl-save'))   el('share-lbl-save').textContent   = T.shareSaveLbl   || "Enregistrer sur l'appareil";
+  if(el('share-sub-save'))   el('share-sub-save').textContent   = T.shareSaveSub   || 'Téléchargement direct';
+  if(el('share-lbl-native')) el('share-lbl-native').textContent = T.shareNativeLbl || 'Autres applications...';
+  if(el('share-sub-native')) el('share-sub-native').textContent = T.shareNativeSub || 'WhatsApp, Drive, Messages...';
+  if(el('share-cancel-btn')) el('share-cancel-btn').textContent = T.shareCancel    || 'Annuler';
+  const nativeBtn = el('share-btn-native');
   if(nativeBtn) nativeBtn.style.display = navigator.share ? 'flex' : 'none';
   document.getElementById('share-modal').style.display = 'flex';
 }
