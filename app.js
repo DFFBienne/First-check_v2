@@ -154,7 +154,7 @@ function addCircuit(data){
   sigRow.style.cssText='display:flex;align-items:center;gap:8px;margin-top:9px;padding:7px 10px;background:#e8f5e9;border-radius:8px;border:1px solid #c8e6c9;';
   const cbx=document.createElement('input');cbx.type='checkbox';cbx.id='collab_signed_'+id;cbx.style.cssText='width:18px;height:18px;accent-color:#2e7d32;cursor:pointer;flex-shrink:0;';
   // Si déjà signé (collab_sig présent dans data) → coché par défaut
-  cbx.checked=!!(data&&data.collab_sig);
+  cbx.checked=false;
   const lbl=document.createElement('label');lbl.htmlFor='collab_signed_'+id;
   lbl.style.cssText='font-size:12.5px;font-weight:700;color:#2e7d32;cursor:pointer;user-select:none;';
   lbl.setAttribute('data-lbl-collab','1');
