@@ -1,14 +1,7 @@
 // pdf-generator.js — Génération PDF côté client via pdf-lib
+// Contrat : buildPDFBlob() → Promise<{blob: Blob, filename: string}>
 
-async function generatePDF(){
-  saveData();
-  const btn=$('pdfBtn');btn.disabled=true;$('btn-pdf-lbl').textContent=I18N[currentLang].pdfLoading;
-  try{await buildPDF();showToast(I18N[currentLang].pdfOk);}
-  catch(e){console.error(e);showToast('Erreur: '+e.message,4000);}
-  finally{btn.disabled=false;$('btn-pdf-lbl').textContent=I18N[currentLang].btnPdf;}
-}
-
-async function buildPDF(){
+async function buildPDFBlob(){
   const {PDFDocument,rgb,StandardFonts}=PDFLib;
   const T=I18N[currentLang];
   const doc=await PDFDocument.create();
@@ -66,34 +59,28 @@ async function buildPDF(){
   const HRA=6.5*MM,HRB=8*MM,HRD=Math.max(Math.min((TH-HRA-HRB)/NRD,5.5*MM),3.5*MM);
   const rowY=ri=>ri===0?TBOT+TH-HRA:ri===1?TBOT+TH-HRA-HRB:TBOT+TH-HRA-HRB-(ri-2)*HRD;
 
-  // Fond des lignes alternées
   for(let ri=2;ri<2+NRD;ri++){if(ri%2===0)R(ML,rowY(ri),TW,HRD,LGRAY);}
 
-  // Bandes de couleur en-tête groupes (ligne 0)
   [{c:[0,1],col:NAVY},{c:[2,3],col:NAVY2},{c:[4,5],col:NAVY2},{c:[6,7,8,9,10,11],col:NAVY3},{c:[12,13,14],col:NAVY2},{c:[15,16],col:NAVY2},{c:[17],col:NAVY}].forEach(g=>{
     const x=colX(g.c[0]),w=g.c.reduce((a,c)=>a+CW[c],0);R(x,rowY(0),w,HRA,g.col);
   });
   R(ML,rowY(1),TW,HRB,NAVY);
 
-  // Libellés des groupes (ligne 0)
   [{c:[0],l:T.pdfGrpGroupe},{c:[1],l:T.pdfGrpPartie},{c:[2,3],l:T.pdfGrpCana},{c:[4,5],l:T.pdfGrpCoupe},{c:[6,7,8,9,10,11],l:T.pdfGrpMes},{c:[12,13,14],l:T.pdfGrpDdr},{c:[15,16],l:T.pdfGrpMes},{c:[17],l:T.pdfGrpCollab}].forEach(g=>{
     const x=colX(g.c[0]),w=g.c.reduce((a,c)=>a+CW[c],0);TxtC(g.l,x,w,rowY(0)+1.8*MM,5.5,fB,WHITE);
   });
 
-  // En-têtes de colonnes (ligne 1)
   T.pdfColHdr.forEach((hdr,ci)=>{
     const x=colX(ci),w=CW[ci],lns=hdr.split('\n'),lH=2.7*MM;
     const totH=lns.length*lH,startY=rowY(1)+(HRB-totH)/2+(lns.length-1)*lH;
     lns.forEach((ln,li)=>TxtC(ln,x,w,startY-li*lH,5,fB,WHITE));
   });
 
-  // Séparateurs verticaux (18 colonnes → 19 traits)
   for(let ci=0;ci<=18;ci++){const x=ci<18?colX(ci):ML+TW;L(x,TBOT,x,TTOP,MGRAY,.3);}
   L(ML,TTOP,ML+TW,TTOP,NAVY,.7);L(ML,rowY(0),ML+TW,rowY(0),NAVY,.5);L(ML,rowY(1),ML+TW,rowY(1),MGRAY,.5);
   for(let ri=2;ri<=2+NRD;ri++)L(ML,rowY(ri),ML+TW,rowY(ri),MGRAY,.25);
   SR(ML,TBOT,TW,TH,NAVY,.7);
 
-  // Données des circuits
   circuits.forEach((circ,ri)=>{
     const ry=rowY(ri+2),ytxt=ry+HRD*.35;
     const cols=[ri<D.circuits.length?String(ri+1):'',circ.desig||'',circ.ctype||'',circ.csect||'',circ.courbe||'',circ.inom||'',circ.icc_max_lpe||'',circ.icc_min_lpe||'',circ.icc_max_ln||'',circ.icc_min_ln||'',circ.riso||'',circ.rlo||'',circ.ddr_inom||'',circ.ddr_idelta||'',circ.ddr_temps||'',circ.champ||'',circ.chute||''];
@@ -112,13 +99,12 @@ async function buildPDF(){
     }
   });
 
-  // 4. ZONE BASSE — 3 blocs : Vérifications visuelles | Paramètres & Remarques | Installateur
+  // 4. ZONE BASSE
   const BY=6*MM,BH=BZH-2*MM,TW3=TW,GAP=1.5*MM;
   const C1W=TW3*.37,C2W=TW3*.37,C3W=TW3-C1W-C2W-2*GAP;
   const X1=ML,X2=X1+C1W+GAP,X3=X2+C2W+GAP;
   const colBox=(x,w,title)=>{R(x,BY,w,BH,WHITE);SR(x,BY,w,BH,MGRAY,.5);R(x,BY+BH-5.5*MM,w,5.5*MM,NAVY);Txt(title,x+2*MM,BY+BH-3.8*MM,6,fB,WHITE);};
 
-  // Bloc 1 : Vérifications visuelles
   colBox(X1,C1W,T.pdfVerifTitle);
   TxtR(T.pdfEtat,X1+C1W-2*MM,BY+BH-3.8*MM,6,fB,WHITE);
   const vcRH=(BH-5.5*MM)/T.pdfVcLabels.length;
@@ -131,7 +117,6 @@ async function buildPDF(){
     TxtR(ok?'OK':'NOK',X1+C1W-2*MM,vy+vcRH*.35,6,fB,ok?GREEN:REDD);
   });
 
-  // Bloc 2 : Paramètres de mesure & Remarques
   colBox(X2,C2W,T.pdfParamsTitle);
   const params=[[T.pdfFacteur,(D.facteur_icc||'NON')+"  val: "+(D.valeur_facteur||'1')],[T.pdfTension,D.tension||'240V'],[T.pdfInstrument,D.instrument||'Metrel'],[T.pdfInventaire,D.num_inventaire||'']];
   const lh=5.5*MM;
@@ -141,7 +126,6 @@ async function buildPDF(){
   const rem=D.remarques||'';
   if(rem){const mxW=C2W-6*MM;let words=rem.split(' '),cur='',lines=[];words.forEach(w=>{const t=cur?cur+' '+w:w;if(fR.widthOfTextAtSize(t,5.3)>mxW){if(cur)lines.push(cur);cur=w;}else cur=t;});if(cur)lines.push(cur);lines.slice(0,5).forEach((ln,i)=>Txt(ln,X2+2*MM,remTop-7*MM-i*3.8*MM,5.3,fR,BLACK));}
 
-  // Bloc 3 : Installateur électricien
   colBox(X3,C3W,T.pdfInstTitle);
   [[T.pdfNomPrenom,D.nom_prenom||''],[T.pdfLieuDate,(D.lieu||'')+'   '+(D.date_sig||'')]].forEach(([k,v],i)=>{
     const iy=BY+BH-5.5*MM-(i+1)*9*MM;if(i%2===0)R(X3,iy,C3W,9*MM,LGRAY);
@@ -156,11 +140,9 @@ async function buildPDF(){
   Txt("C2 - Internal",ML,1.5*MM,5,fR,DGRAY);
   TxtC(T.pdfFooter,0,W,1.5*MM,5,fR,DGRAY);
 
+  // Retourner {blob, filename} — contrat attendu par app.js (generatePDF + shareAction)
   const bytes=await doc.save();
   const blob=new Blob([bytes],{type:'application/pdf'});
-  const url=URL.createObjectURL(blob);
-  const fname='Protocole_'+(D.num_tableau||'T00').replace(/\s/g,'_')+'_'+(D.date_sig||new Date().toISOString().slice(0,10))+'.pdf';
-  const a=document.createElement('a');a.href=url;a.download=fname;a.target='_blank';
-  document.body.appendChild(a);a.click();document.body.removeChild(a);
-  setTimeout(()=>URL.revokeObjectURL(url),3000);
+  const filename='Protocole_'+(D.num_tableau||'T00').replace(/\s/g,'_')+'_'+(D.date_sig||new Date().toISOString().slice(0,10))+'.pdf';
+  return {blob, filename};
 }
