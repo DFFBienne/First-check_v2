@@ -28,7 +28,8 @@ async function buildPDFBlob(){
   const D={};
   ['nom_installation','num_tableau','page','objet','num_compteur','cc_general','cc_abonne','tension','instrument','num_inventaire','facteur_icc','valeur_facteur','nom_prenom','lieu','date_sig','remarques'].forEach(k=>D[k]=gv(k));
   D.vc={};for(let i=1;i<=8;i++)D.vc['vc'+i]=gv('vc'+i);
-  D.circuits=circuitIds.filter(id=>!!$('cc-'+id)).map(id=>({desig:gv('desig_'+id),ctype:gv('ctype_'+id),csect:gv('csect_'+id),courbe:gv('courbe_'+id),inom:gv('inom_'+id),icc_max_lpe:gv('icc_max_lpe_'+id),icc_min_lpe:gv('icc_min_lpe_'+id),icc_max_ln:gv('icc_max_ln_'+id),icc_min_ln:gv('icc_min_ln_'+id),riso:gv('riso_'+id),rlo:gv('rlo_'+id),ddr_inom:gv('ddr_inom_'+id),ddr_idelta:gv('ddr_idelta_'+id),ddr_temps:gv('ddr_temps_'+id),champ:gv('champ_'+id),chute:gv('chute_'+id)}));
+  // rem inclus pour la colonne Remarque par circuit
+  D.circuits=circuitIds.filter(id=>!!$('cc-'+id)).map(id=>({desig:gv('desig_'+id),ctype:gv('ctype_'+id),csect:gv('csect_'+id),courbe:gv('courbe_'+id),inom:gv('inom_'+id),icc_max_lpe:gv('icc_max_lpe_'+id),icc_min_lpe:gv('icc_min_lpe_'+id),icc_max_ln:gv('icc_max_ln_'+id),icc_min_ln:gv('icc_min_ln_'+id),riso:gv('riso_'+id),rlo:gv('rlo_'+id),ddr_inom:gv('ddr_inom_'+id),ddr_idelta:gv('ddr_idelta_'+id),ddr_temps:gv('ddr_temps_'+id),champ:gv('champ_'+id),chute:gv('chute_'+id),rem:gv('rem_'+id)}));
 
   // 1. HEADER
   const HH=20*MM;
@@ -49,9 +50,9 @@ async function buildPDFBlob(){
   kv(T.pdfCcAbo,D.cc_abonne||"—",175*MM,IY-IH+3.5*MM,45*MM);
 
   // 3. TABLEAU
-  // Col 0-16 : données mesures | Col 17 : Collaborateur (Nom Prénom + ligne signature)
+  // Col 0-16 : mesures | Col 17 : Remarque | Col 18 : Collaborateur
   const BZH=57*MM,TBOT=6*MM+BZH,TTOP=IY-IH,TH=TTOP-TBOT,TW=W-ML-MR;
-  const rawCW=[7,33,11,12,10,9,12,12,12,12,10,10,10,10,9,10,11,22];
+  const rawCW=[7,30,10,11,9,8,11,11,11,11,9,9,9,9,8,9,10,18,20];
   const sumCW=rawCW.reduce((a,b)=>a+b,0);
   const CW=rawCW.map(x=>(x/sumCW)*TW);
   const colX=ci=>{let x=ML;for(let i=0;i<ci;i++)x+=CW[i];return x;};
@@ -61,26 +62,31 @@ async function buildPDFBlob(){
 
   for(let ri=2;ri<2+NRD;ri++){if(ri%2===0)R(ML,rowY(ri),TW,HRD,LGRAY);}
 
-  [{c:[0,1],col:NAVY},{c:[2,3],col:NAVY2},{c:[4,5],col:NAVY2},{c:[6,7,8,9,10,11],col:NAVY3},{c:[12,13,14],col:NAVY2},{c:[15,16],col:NAVY2},{c:[17],col:NAVY}].forEach(g=>{
+  // Bandes de couleur en-tête groupes (ligne 0)
+  [{c:[0,1],col:NAVY},{c:[2,3],col:NAVY2},{c:[4,5],col:NAVY2},{c:[6,7,8,9,10,11],col:NAVY3},{c:[12,13,14],col:NAVY2},{c:[15,16],col:NAVY2},{c:[17],col:NAVY2},{c:[18],col:NAVY}].forEach(g=>{
     const x=colX(g.c[0]),w=g.c.reduce((a,c)=>a+CW[c],0);R(x,rowY(0),w,HRA,g.col);
   });
   R(ML,rowY(1),TW,HRB,NAVY);
 
-  [{c:[0],l:T.pdfGrpGroupe},{c:[1],l:T.pdfGrpPartie},{c:[2,3],l:T.pdfGrpCana},{c:[4,5],l:T.pdfGrpCoupe},{c:[6,7,8,9,10,11],l:T.pdfGrpMes},{c:[12,13,14],l:T.pdfGrpDdr},{c:[15,16],l:T.pdfGrpMes},{c:[17],l:T.pdfGrpCollab}].forEach(g=>{
+  // Libellés des groupes (ligne 0)
+  [{c:[0],l:T.pdfGrpGroupe},{c:[1],l:T.pdfGrpPartie},{c:[2,3],l:T.pdfGrpCana},{c:[4,5],l:T.pdfGrpCoupe},{c:[6,7,8,9,10,11],l:T.pdfGrpMes},{c:[12,13,14],l:T.pdfGrpDdr},{c:[15,16],l:T.pdfGrpMes},{c:[17],l:T.pdfGrpRem},{c:[18],l:T.pdfGrpCollab}].forEach(g=>{
     const x=colX(g.c[0]),w=g.c.reduce((a,c)=>a+CW[c],0);TxtC(g.l,x,w,rowY(0)+1.8*MM,5.5,fB,WHITE);
   });
 
+  // En-têtes de colonnes (ligne 1)
   T.pdfColHdr.forEach((hdr,ci)=>{
     const x=colX(ci),w=CW[ci],lns=hdr.split('\n'),lH=2.7*MM;
     const totH=lns.length*lH,startY=rowY(1)+(HRB-totH)/2+(lns.length-1)*lH;
     lns.forEach((ln,li)=>TxtC(ln,x,w,startY-li*lH,5,fB,WHITE));
   });
 
-  for(let ci=0;ci<=18;ci++){const x=ci<18?colX(ci):ML+TW;L(x,TBOT,x,TTOP,MGRAY,.3);}
+  // Séparateurs verticaux (19 colonnes → 20 traits)
+  for(let ci=0;ci<=19;ci++){const x=ci<19?colX(ci):ML+TW;L(x,TBOT,x,TTOP,MGRAY,.3);}
   L(ML,TTOP,ML+TW,TTOP,NAVY,.7);L(ML,rowY(0),ML+TW,rowY(0),NAVY,.5);L(ML,rowY(1),ML+TW,rowY(1),MGRAY,.5);
   for(let ri=2;ri<=2+NRD;ri++)L(ML,rowY(ri),ML+TW,rowY(ri),MGRAY,.25);
   SR(ML,TBOT,TW,TH,NAVY,.7);
 
+  // Données des circuits
   circuits.forEach((circ,ri)=>{
     const ry=rowY(ri+2),ytxt=ry+HRD*.35;
     const cols=[ri<D.circuits.length?String(ri+1):'',circ.desig||'',circ.ctype||'',circ.csect||'',circ.courbe||'',circ.inom||'',circ.icc_max_lpe||'',circ.icc_min_lpe||'',circ.icc_max_ln||'',circ.icc_min_ln||'',circ.riso||'',circ.rlo||'',circ.ddr_inom||'',circ.ddr_idelta||'',circ.ddr_temps||'',circ.champ||'',circ.chute||''];
@@ -90,11 +96,15 @@ async function buildPDFBlob(){
       const s=clip(val,w-2,sz,f);
       ci===1?Txt(s,x+1.5,ytxt,sz,f,col):TxtC(s,x,w,ytxt,sz,f,col);
     });
-    // Colonne 17 — Collaborateur : Nom Prénom (repris de l'installateur) + ligne de signature
+    // Col 17 — Remarque par circuit (alignée à gauche)
     if(ri<D.circuits.length){
-      const cx=colX(17),cw=CW[17],pad=2;
-      const nameStr=clip(D.nom_prenom||'',cw-pad*2,4.8,fR);
-      Txt(nameStr,cx+pad,ry+HRD*.68,4.8,fR,BLACK);
+      const rx=colX(17),rw=CW[17],pad=2;
+      Txt(clip(circ.rem||'',rw-pad*2,5,fR),rx+pad,ytxt,5,fR,BLACK);
+    }
+    // Col 18 — Collaborateur : Nom Prénom + ligne de signature
+    if(ri<D.circuits.length){
+      const cx=colX(18),cw=CW[18],pad=2;
+      Txt(clip(D.nom_prenom||'',cw-pad*2,4.8,fR),cx+pad,ry+HRD*.68,4.8,fR,BLACK);
       L(cx+pad,ry+HRD*.28,cx+cw-pad,ry+HRD*.28,MGRAY,.5);
     }
   });
@@ -140,7 +150,7 @@ async function buildPDFBlob(){
   Txt("C2 - Internal",ML,1.5*MM,5,fR,DGRAY);
   TxtC(T.pdfFooter,0,W,1.5*MM,5,fR,DGRAY);
 
-  // Retourner {blob, filename} — contrat attendu par app.js (generatePDF + shareAction)
+  // Retourner {blob, filename} — contrat attendu par app.js
   const bytes=await doc.save();
   const blob=new Blob([bytes],{type:'application/pdf'});
   const filename='Protocole_'+(D.num_tableau||'T00').replace(/\s/g,'_')+'_'+(D.date_sig||new Date().toISOString().slice(0,10))+'.pdf';
