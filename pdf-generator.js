@@ -77,7 +77,16 @@ async function buildPDFBlob(){
   for(let i=0;i<NRD;i++){if(i%2===0)R(ML,dataRowY(i),TW,HRD,LGRAY);}
 
   // Données — dessinées AVANT les en-têtes pour qu'ils les couvrent
-  circuits.forEach((circ,i)=>{
+  // Pré-embarquer la signature une seule fois (await interdit dans forEach)
+  let sigImgCollab = null;
+  if(sigData){
+    try{
+      const sb=Uint8Array.from(atob(sigData.split(',')[1]),c=>c.charCodeAt(0));
+      sigImgCollab = await doc.embedPng(sb);
+    }catch(e){console.warn('Sig collab embed:',e);}
+  }
+  for(let i=0;i<circuits.length;i++){
+    const circ=circuits[i];
     const ry=dataRowY(i), ytxt=ry+HRD*0.28;
     const cols=[circ.groupe||'',circ.desig||'',circ.ctype||'',circ.csect||'',circ.courbe||'',circ.inom||'',circ.icc_max_lpe||'',circ.icc_min_lpe||'',circ.icc_max_ln||'',circ.icc_min_ln||'',circ.riso||'',circ.rlo||'',circ.ddr_inom||'',circ.ddr_idelta||'',circ.ddr_temps||'',circ.champ||'',circ.chute||'',circ.rem||''];
     cols.forEach((val,ci)=>{
@@ -90,20 +99,15 @@ async function buildPDFBlob(){
     if(i<D.circuits.length){
       const cx=colX(18),cw=CW[18],pad=2;
       Txt(clip(D.nom_prenom||'',cw-pad*2,4.8,fR),cx+pad,ry+HRD*.72,4.8,fR,BLACK);
-      if(sigData){
-        try{
-          const sb=Uint8Array.from(atob(sigData.split(',')[1]),c=>c.charCodeAt(0));
-          const si=await doc.embedPng(sb);
-          const maxW=cw-pad*2, maxH=HRD*0.52;
-          const ratio=si.width/si.height;
-          let dw=maxW, dh=dw/ratio;
-          if(dh>maxH){dh=maxH;dw=dh*ratio;}
-          page.drawImage(si,{x:cx+(cw-dw)/2,y:ry+HRD*.10,width:dw,height:dh});
-        }catch(e){console.warn('Sig col18:',e);}
+      if(sigImgCollab){
+        const maxW=cw-pad*2, maxH=HRD*0.52;
+        const ratio=sigImgCollab.width/sigImgCollab.height;
+        let dw=maxW, dh=dw/ratio;
+        if(dh>maxH){dh=maxH;dw=dh*ratio;}
+        page.drawImage(sigImgCollab,{x:cx+(cw-dw)/2,y:ry+HRD*.10,width:dw,height:dh});
       }
     }
-
-  });
+  }
 
   // Grille — lignes verticales UNIQUEMENT dans la zone data (pas dans les en-têtes)
   // Lignes verticales data (grises)
