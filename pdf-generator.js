@@ -77,14 +77,6 @@ async function buildPDFBlob(){
   for(let i=0;i<NRD;i++){if(i%2===0)R(ML,dataRowY(i),TW,HRD,LGRAY);}
 
   // Données — dessinées AVANT les en-têtes pour qu'ils les couvrent
-  // Pré-embarquer la signature une seule fois (await interdit dans forEach)
-  let sigImgCollab = null;
-  if(sigData){
-    try{
-      const sb=Uint8Array.from(atob(sigData.split(',')[1]),c=>c.charCodeAt(0));
-      sigImgCollab = await doc.embedPng(sb);
-    }catch(e){console.warn('Sig collab embed:',e);}
-  }
   for(let i=0;i<circuits.length;i++){
     const circ=circuits[i];
     const ry=dataRowY(i), ytxt=ry+HRD*0.28;
@@ -95,16 +87,22 @@ async function buildPDFBlob(){
       const s=clip(val,w-2,sz,f);
       (ci===1||ci===17)?Txt(s,x+1.5,ytxt,sz,f,col):TxtC(s,x,w,ytxt,sz,f,col);
     });
-    // Col 18 — Collaborateur : Nom Prénom + signature dessinée
+    // Col 18 — Collaborateur : nom+sig propres au circuit
     if(i<D.circuits.length){
       const cx=colX(18),cw=CW[18],pad=2;
-      Txt(clip(D.nom_prenom||'',cw-pad*2,4.8,fR),cx+pad,ry+HRD*.72,4.8,fR,BLACK);
-      if(sigImgCollab){
-        const maxW=cw-pad*2, maxH=HRD*0.52;
-        const ratio=sigImgCollab.width/sigImgCollab.height;
-        let dw=maxW, dh=dw/ratio;
-        if(dh>maxH){dh=maxH;dw=dh*ratio;}
-        page.drawImage(sigImgCollab,{x:cx+(cw-dw)/2,y:ry+HRD*.10,width:dw,height:dh});
+      const collabNom=circ.collab_nom||'';
+      const collabSig=circ.collab_sig||'';
+      Txt(clip(collabNom,cw-pad*2,4.8,fR),cx+pad,ry+HRD*.72,4.8,fR,BLACK);
+      if(collabSig){
+        try{
+          const sb=Uint8Array.from(atob(collabSig.split(',')[1]),c=>c.charCodeAt(0));
+          const si=await doc.embedPng(sb);
+          const maxW=cw-pad*2, maxH=HRD*0.52;
+          const ratio=si.width/si.height;
+          let dw=maxW, dh=dw/ratio;
+          if(dh>maxH){dh=maxH;dw=dh*ratio;}
+          page.drawImage(si,{x:cx+(cw-dw)/2,y:ry+HRD*.10,width:dw,height:dh});
+        }catch(e){console.warn('Sig collab circuit:',e);}
       }
     }
   }
@@ -136,8 +134,8 @@ async function buildPDFBlob(){
   // ── Séparateurs entre groupes : blanc, remontent dans rowA ──
   // Frontières de groupes aux colonnes : 2, 4, 6, 12, 15
   const grpBoundaries=[1,2,4,6,12,15,17,18];
-  for(let ci=1;ci<18;ci++){
-    const x=colX(ci);
+  for(let ci=1;ci<=19;ci++){
+    const x=ci<19?colX(ci):ML+TW;
     if(grpBoundaries.includes(ci)){
       // Ligne blanche haute — remonte dans rowA
       L(x,headerBY,x,headerAY+HRA,WHITE,1.0);
