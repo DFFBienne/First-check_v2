@@ -1,6 +1,12 @@
 # Changelog — Protocole Premières Vérifications SBB CFF FFS
 
 ---
+## V1.0.9 — 2026-04-20
+
+### Corrigé
+- **Checkbox "Signé"** : lors de l'import d'un fichier JSON, les cases signature des circuits importés sont désormais **décochées par défaut**. Correction de différents bugs.
+
+---
 
 ## V1.0.9 — 2026-04-20
 
