@@ -86,11 +86,11 @@ async function buildPDFBlob(){
       const s=clip(val,w-2,sz,f);
       (ci===1||ci===17)?Txt(s,x+1.5,ytxt,sz,f,col):TxtC(s,x,w,ytxt,sz,f,col);
     });
-    // Col 18 — Collaborateur : Nom Prénom (repris de l'installateur) + ligne de signature
+    // Col 18 — Collaborateur : Nom Prénom + ligne de signature
     if(i<D.circuits.length){
       const cx=colX(18),cw=CW[18],pad=2;
-      Txt(clip(D.nom_prenom||'',cw-pad*2,4.8,fR),cx+pad,ry+HRD*.65,4.8,fR,BLACK);
-      L(cx+pad,ry+HRD*.28,cx+cw-pad,ry+HRD*.28,MGRAY,.5);
+      Txt(clip(D.nom_prenom||'',cw-pad*2,4.8,fR),cx+pad,ry+HRD*.70,4.8,fR,BLACK);
+      L(cx+pad,ry+HRD*.35,cx+cw-pad,ry+HRD*.35,DGRAY,.6);
     }
 
   });
@@ -113,7 +113,7 @@ async function buildPDFBlob(){
 
   // ── rowB — même couleur de fond que le groupe rowA correspondant ──
   // Mapping colonne → couleur de groupe
-  const colGrpColor=Array(18).fill(NAVY);
+  const colGrpColor=Array(19).fill(NAVY);
   for(let ci=0;ci<18;ci++){
     const x=colX(ci),w=CW[ci];
     R(x,headerBY,w,HRB,colGrpColor[ci]);
