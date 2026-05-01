@@ -109,8 +109,8 @@ function addCircuit(data){
           <label data-lbl="lblCtype" style="font-size:9.5px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.2px;margin:0;">${T.lblCtype}</label>
           <button type="button" onclick="showCableHelp()" style="width:16px;height:16px;border-radius:50%;border:1.5px solid var(--navy);background:var(--navy);color:#fff;font-size:9px;font-weight:700;cursor:pointer;line-height:1;padding:0;flex-shrink:0;" title="Aide">i</button>
         </div>
-        <input type="text" id="ctype_${id}" value="${(data&&data.ctype)||''}" placeholder="NYM" list="ctype-list" autocomplete="off"/>
-        <datalist id="ctype-list"><option value="H07V-U"/><option value="CH-N1VV-U"/><option value="H05VV-F"/><option value="CH-N1VV-K"/><option value="H07BQ-F"/><option value="CH-N1VCV-U"/></datalist>
+        <input type="text" id="ctype_${id}" value="${(data&&data.ctype)||''}" placeholder="FE05C" list="ctype-list" autocomplete="off"/>
+        <datalist id="ctype-list"><option value="FE05C"/><option value="FE0D"/><option value="TT"/><option value="PUR-PUR"/></datalist>
       </div>
       <div class="mf"><label data-lbl="lblCsect">${T.lblCsect}</label><input type="text" id="csect_${id}" value="${(data&&data.csect)||''}" placeholder="3×2.5 mm²"/></div>
     </div>
@@ -140,27 +140,6 @@ function addCircuit(data){
     <textarea id="rem_${id}" rows="2" placeholder="${T.lblRemCircuit||'Remarque sur ce circuit...'}" style="border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;background:#fff;color:var(--text);width:100%;outline:none;resize:vertical;min-height:48px;">${(data&&data.rem)||''}</textarea>`;
   box.appendChild(d);
   if(data){if(data.courbe)$('courbe_'+id).value=data.courbe;if(data.ddr_idelta)$('ddr_idelta_'+id).value=data.ddr_idelta;if(data.champ)$('champ_'+id).value=data.champ;}
-  // Inputs cachés pour collab nom+sig stockés par circuit
-  const cn=document.createElement('input');cn.type='hidden';cn.id='collab_nom_'+id;
-  const cs=document.createElement('input');cs.type='hidden';cs.id='collab_sig_'+id;
-  d.appendChild(cn);d.appendChild(cs);
-  // Restaurer les données collab importées (si présentes)
-  if(data&&data.collab_sig!==undefined){
-    cn.value=data.collab_nom||'';
-    cs.value=data.collab_sig||'';
-  }
-  // Checkbox "Signé" — si cochée, écrase collab avec nom/sig global au save
-  const sigRow=document.createElement('div');
-  sigRow.style.cssText='display:flex;align-items:center;gap:8px;margin-top:9px;padding:7px 10px;background:#e8f5e9;border-radius:8px;border:1px solid #c8e6c9;';
-  const cbx=document.createElement('input');cbx.type='checkbox';cbx.id='collab_signed_'+id;cbx.style.cssText='width:18px;height:18px;accent-color:#2e7d32;cursor:pointer;flex-shrink:0;';
-  // Si déjà signé (collab_sig présent dans data) → coché par défaut
-  cbx.checked=false;
-  const lbl=document.createElement('label');lbl.htmlFor='collab_signed_'+id;
-  lbl.style.cssText='font-size:12.5px;font-weight:700;color:#2e7d32;cursor:pointer;user-select:none;';
-  lbl.setAttribute('data-lbl-collab','1');
-  lbl.textContent=I18N[currentLang].lblSigned||'Signé (reprendre nom & signature)';
-  sigRow.appendChild(cbx);sigRow.appendChild(lbl);
-  d.appendChild(sigRow);
   updateBadge();
 }
 function removeCircuit(id){
@@ -172,15 +151,29 @@ function removeCircuit(id){
 }
 
 // ── Aide-mémoire câbles ──────────────────────────────────────
+const CABLE_CLASS_COLORS = {
+  'Aca':'#e53935', 'B1ca':'#1565c0', 'B2ca':'#00838f',
+  'Cca':'#f9a825', 'Dca':'#6a1b9a', 'Eca':'#e91e63', 'Fca':'#c62828'
+};
 function showCableHelp(){
   const T=I18N[currentLang];
-  document.getElementById('cable-help-tbody').innerHTML=T.cableTable.map(r=>
-    '<tr><td style="padding:6px 8px;border-bottom:1px solid #e8ebf5;font-size:12px;font-weight:600;color:var(--navy);white-space:nowrap;">'+r[0]+'</td><td style="padding:6px 8px;border-bottom:1px solid #e8ebf5;font-size:12px;font-weight:600;white-space:nowrap;">'+r[1]+'</td><td style="padding:6px 8px;border-bottom:1px solid #e8ebf5;font-size:12px;color:var(--muted);line-height:1.4;">'+r[2]+'</td></tr>'
-  ).join('');
-  document.getElementById('cable-help-title').textContent=T.cableHelpTitle||'Types de câbles';
-  document.getElementById('cable-help-col1').textContent=T.cableCol1||'Nom courant';
-  document.getElementById('cable-help-col2').textContent=T.cableCol2||'Désignation';
-  document.getElementById('cable-help-col3').textContent=T.cableCol3||'Description';
+  document.getElementById('cable-help-tbody').innerHTML=T.cableTable.map(r=>{
+    const cls=r[0];
+    const color=CABLE_CLASS_COLORS[cls]||'#333';
+    const isAca=cls==='Aca';
+    const badge=isAca
+      ? `<span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;border:2.5px solid ${color};font-size:11px;font-weight:800;color:${color};position:relative;"><span style="text-decoration:line-through;">${cls}</span><svg style="position:absolute;inset:0;width:100%;height:100%;" viewBox="0 0 36 36"><line x1="6" y1="6" x2="30" y2="30" stroke="${color}" stroke-width="2.5"/></svg></span>`
+      : `<span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;border:2.5px solid ${color};font-size:11px;font-weight:800;color:${color};">${cls}</span>`;
+    return '<tr>'
+      +'<td style="padding:7px 8px;border-bottom:1px solid #e8ebf5;text-align:center;">'+badge+'</td>'
+      +'<td style="padding:7px 8px;border-bottom:1px solid #e8ebf5;font-size:13px;font-weight:700;color:var(--navy);white-space:nowrap;text-align:center;">'+r[1]+'</td>'
+      +'<td style="padding:7px 8px;border-bottom:1px solid #e8ebf5;font-size:12px;color:var(--muted);line-height:1.4;">'+r[2]+'</td>'
+      +'</tr>';
+  }).join('');
+  document.getElementById('cable-help-title').textContent=T.cableHelpTitle||'Classe de feu — Types de câbles';
+  document.getElementById('cable-help-col1').textContent=T.cableCol1||'Classe de feu';
+  document.getElementById('cable-help-col2').textContent=T.cableCol2||'Type de câble';
+  document.getElementById('cable-help-col3').textContent=T.cableCol3||'Caractéristiques au feu';
   document.getElementById('cable-help-modal').style.display='flex';
 }
 function closeCableHelp(){document.getElementById('cable-help-modal').style.display='none';}
@@ -195,7 +188,7 @@ function saveData(){
   const d={lang:currentLang};
   FIELDS.forEach(f=>d[f]=gv(f));
   d.sigData=sigData;
-  d.circuits=circuitIds.filter(id=>!!$('cc-'+id)).map(id=>({groupe:gv('groupe_'+id),desig:gv('desig_'+id),ctype:gv('ctype_'+id),csect:gv('csect_'+id),courbe:gv('courbe_'+id),inom:gv('inom_'+id),icc_max_lpe:gv('icc_max_lpe_'+id),icc_min_lpe:gv('icc_min_lpe_'+id),icc_max_ln:gv('icc_max_ln_'+id),icc_min_ln:gv('icc_min_ln_'+id),riso:gv('riso_'+id),rlo:gv('rlo_'+id),ddr_inom:gv('ddr_inom_'+id),ddr_idelta:gv('ddr_idelta_'+id),ddr_temps:gv('ddr_temps_'+id),champ:gv('champ_'+id),chute:gv('chute_'+id),rem:gv('rem_'+id),collab_nom:(($('collab_signed_'+id)&&$('collab_signed_'+id).checked)?gv('nom_prenom'):(gv('collab_nom_'+id)||'')),collab_sig:(($('collab_signed_'+id)&&$('collab_signed_'+id).checked)?(sigData||''):(gv('collab_sig_'+id)||''))}));
+  d.circuits=circuitIds.filter(id=>!!$('cc-'+id)).map(id=>({groupe:gv('groupe_'+id),desig:gv('desig_'+id),ctype:gv('ctype_'+id),csect:gv('csect_'+id),courbe:gv('courbe_'+id),inom:gv('inom_'+id),icc_max_lpe:gv('icc_max_lpe_'+id),icc_min_lpe:gv('icc_min_lpe_'+id),icc_max_ln:gv('icc_max_ln_'+id),icc_min_ln:gv('icc_min_ln_'+id),riso:gv('riso_'+id),rlo:gv('rlo_'+id),ddr_inom:gv('ddr_inom_'+id),ddr_idelta:gv('ddr_idelta_'+id),ddr_temps:gv('ddr_temps_'+id),champ:gv('champ_'+id),chute:gv('chute_'+id),rem:gv('rem_'+id)}));
   d.sigData=sigData;
   try{localStorage.setItem(SKEY,JSON.stringify(d));markSaved();}catch(e){showToast('Erreur sauvegarde');}
 }
@@ -209,8 +202,8 @@ function loadData(){
       applyLang();
     }
     FIELDS.forEach(f=>sv(f,d[f]));
-    if(d.sigData){sigData=d.sigData;const prev=$('sig-preview');const ctx=prev.getContext('2d');prev.width=prev.offsetWidth*window.devicePixelRatio;prev.height=prev.offsetHeight*window.devicePixelRatio;ctx.scale(window.devicePixelRatio,window.devicePixelRatio);const img=new Image();img.onload=()=>{ctx.drawImage(img,0,0,prev.offsetWidth,prev.offsetHeight);};img.src=sigData;$('sig-placeholder').style.display='none';$('sig-clear-btn').style.display='block';}
     if(d.circuits&&d.circuits.length)d.circuits.forEach(c=>addCircuit(c));
+    if(d.sigData){sigData=d.sigData;const prev=$('sig-preview');const ctx=prev.getContext('2d');prev.width=prev.offsetWidth*window.devicePixelRatio;prev.height=prev.offsetHeight*window.devicePixelRatio;ctx.scale(window.devicePixelRatio,window.devicePixelRatio);const img=new Image();img.onload=()=>{ctx.drawImage(img,0,0,prev.offsetWidth,prev.offsetHeight);};img.src=sigData;$('sig-placeholder').style.display='none';$('sig-clear-btn').style.display='block';}
     markSaved();showToast(I18N[currentLang].restored);
   }catch(e){console.error(e);}
 }
@@ -231,9 +224,7 @@ function collectAll(){
     riso:gv('riso_'+id),rlo:gv('rlo_'+id),
     ddr_inom:gv('ddr_inom_'+id),ddr_idelta:gv('ddr_idelta_'+id),
     ddr_temps:gv('ddr_temps_'+id),champ:gv('champ_'+id),chute:gv('chute_'+id),
-    rem:gv('rem_'+id),
-    collab_nom:(($('collab_signed_'+id)&&$('collab_signed_'+id).checked)?gv('nom_prenom'):(gv('collab_nom_'+id)||'')),
-    collab_sig:(($('collab_signed_'+id)&&$('collab_signed_'+id).checked)?(sigData||''):(gv('collab_sig_'+id)||''))
+    rem:gv('rem_'+id)
   }));
   return d;
 }
@@ -329,8 +320,8 @@ function doImport(mode){
       applyLang();
     }
     FIELDS.forEach(f=>sv(f,d[f]));
-    if(d.sigData){ sigData=d.sigData; }
     if(d.circuits&&d.circuits.length) d.circuits.forEach(c=>addCircuit(c));
+    if(d.sigData){ sigData=d.sigData; }
     localStorage.setItem(SKEY,JSON.stringify(d));
     markSaved(); updateBadge();
     showToast('Import complet ✓ ('+d.circuits.length+' circuits)');
