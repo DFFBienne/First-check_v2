@@ -39,13 +39,12 @@ async function buildPDFBlob(){
   R(ML,H-HH,W-ML-MR,HH,NAVY);
   Txt(T.pdfTitle,ML+2*MM,H-HH+9*MM,8,fB,WHITE);
   Txt(T.pdfNomInst+"  "+clip(D.nom_installation,180*MM,6.5,fR),ML+2*MM,H-HH+3.5*MM,6.5,fR,WHITE);
-  // Logo + page à droite
+  // Page number top-right, logo à sa gauche
   const logoH=4*MM, logoW=logoH*(logoJpgImg.width/logoJpgImg.height);
   TxtR(T.pdfPage+" "+(D.page||'01'),W-MR-2*MM,H-HH+HH/2,7,fR,WHITE);
   page.drawImage(logoJpgImg,{x:W-MR-2*MM-logoW-15*MM, y:H-HH+(HH-logoH)/2, width:logoW, height:logoH});
 
   // 2. BANDEAU INFO — aligné sur les marges du tableau
-  // Hauteur adaptative : 3 lignes si fournisseur ou remarques_install, sinon 2 lignes
   const hasExtra = !!(D.fournisseur || D.remarques_install);
   const IH = hasExtra ? 18*MM : 13*MM;
   const IY=H-HH;

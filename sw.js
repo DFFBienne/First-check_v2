@@ -1,7 +1,7 @@
 /* Service Worker — SBB CFF FFS Protocole Vérification
    Stratégie : network-first pour les assets, notification de mise à jour */
 
-const CACHE_NAME = 'sbb-protocole-v1.0.9'; // ← Incrémenter à chaque déploiement
+const CACHE_NAME = 'sbb-protocole-v1.1.1'; // ← Incrémenter à chaque déploiement
 
 const ASSETS = [
   './',
@@ -17,25 +17,23 @@ const ASSETS = [
   './manifest.json'
 ];
 
-// Installation : mise en cache SANS activation immédiate
-// Le SW attend que l'utilisateur clique "Mettre à jour" avant de prendre le contrôle
+// Installation : mise en cache + activation immédiate
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(ASSETS))
-    // PAS de self.skipWaiting() ici — le SW attend le signal de la page
+      .then(() => self.skipWaiting()) // ← Prend le contrôle immédiatement
   );
 });
 
-// Activation : supprime les anciens caches
-// Ne prend PAS le contrôle automatiquement (pas de clients.claim)
+// Activation : supprime les anciens caches, prend le contrôle de toutes les pages
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys()
       .then(keys => Promise.all(
         keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
       ))
-    // PAS de self.clients.claim() — la page gère le rechargement
+      .then(() => self.clients.claim()) // ← Contrôle immédiat des onglets ouverts
   );
 });
 
