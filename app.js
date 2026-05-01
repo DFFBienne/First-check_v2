@@ -35,6 +35,8 @@ function applyLang() {
   st('lbl-page', T.lblPage);
   st('lbl-objet', T.lblObjet);
   st('lbl-compteur', T.lblCompteur);
+  st('lbl-fournisseur', T.lblFournisseur);
+  st('lbl-remarques-install', T.lblRemarquesInstall);
   st('lbl-cc-gen', T.lblCcGen);
   st('lbl-cc-abo', T.lblCcAbo);
   st('lbl-tension', T.lblTension);
@@ -183,7 +185,7 @@ function updateBadge(){$('cct').textContent=circuitIds.length;}
 // ═══════════════════════════════════════════════════════════
 // SAVE / LOAD
 // ═══════════════════════════════════════════════════════════
-const FIELDS=['nom_installation','num_tableau','page','objet','num_compteur','cc_general','cc_abonne','tension','instrument','num_inventaire','facteur_icc','valeur_facteur','vc1','vc2','vc3','vc4','vc5','vc6','vc7','vc8','remarques','nom_prenom','lieu','date_sig'];
+const FIELDS=['nom_installation','num_tableau','page','objet','num_compteur','fournisseur','remarques_install','cc_general','cc_abonne','tension','instrument','num_inventaire','facteur_icc','valeur_facteur','vc1','vc2','vc3','vc4','vc5','vc6','vc7','vc8','remarques','nom_prenom','lieu','date_sig'];
 function saveData(){
   const d={lang:currentLang};
   FIELDS.forEach(f=>d[f]=gv(f));
