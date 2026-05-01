@@ -107,12 +107,12 @@ const I18N = {
     cableCol3: "Caractéristiques au feu",
     cableTable: [
       ["Aca",      "—",         "Pas inflammable, produits céramiques — pas appliquée"],
-      ["B1ca",     "FE05C",     "Pas ou très peu de propagation de la flamme"],
-      ["B2ca",     "FE0D",      "En cas d'exposition aux flammes, pas de propagation continue de la flamme"],
-      ["Cca",      "TT",        "Pas de propagation continue de la flamme, mais fort dégagement thermique"],
-      ["Dca",      "PUR-PUR",   "Réaction au feu comparable à celle du bois"],
-      ["Eca",      "—",         "Petite flamme, pas de propagation intensive"],
-      ["Fca",      "—",         "Pas de caractéristiques au feu définies"]
+      ["B1ca",     "—",         "Pas ou très peu de propagation de la flamme"],
+      ["B2ca",     "—",         "En cas d'exposition aux flammes, pas de propagation continue de la flamme"],
+      ["Cca",      "FE05C",     "Pas de propagation continue de la flamme, mais fort dégagement thermique"],
+      ["Dca",      "FE0D",      "Réaction au feu comparable à celle du bois"],
+      ["Eca",      "TT",        "Petite flamme, pas de propagation intensive"],
+      ["Fca",      "PUR-PUR",   "Pas de caractéristiques au feu définies"]
     ]
   },
   de: {
@@ -221,12 +221,12 @@ const I18N = {
     cableCol3: "Brandverhalten",
     cableTable: [
       ["Aca",      "—",         "Nicht brennbar, Keramikprodukte — nicht anwendbar"],
-      ["B1ca",     "FE05C",     "Keine oder sehr geringe Flammenausbreitung"],
-      ["B2ca",     "FE0D",      "Bei Flammeneinwirkung keine anhaltende Flammenausbreitung"],
-      ["Cca",      "TT",        "Keine anhaltende Flammenausbreitung, aber starke Wärmeentwicklung"],
-      ["Dca",      "PUR-PUR",   "Brandverhalten vergleichbar mit Holz"],
-      ["Eca",      "—",         "Kleine Flamme, keine intensive Ausbreitung"],
-      ["Fca",      "—",         "Keine definierten Brandeigenschaften"]
+      ["B1ca",     "—",         "Keine oder sehr geringe Flammenausbreitung"],
+      ["B2ca",     "—",         "Bei Flammeneinwirkung keine anhaltende Flammenausbreitung"],
+      ["Cca",      "FE05C",     "Keine anhaltende Flammenausbreitung, aber starke Wärmeentwicklung"],
+      ["Dca",      "FE0D",      "Brandverhalten vergleichbar mit Holz"],
+      ["Eca",      "TT",        "Kleine Flamme, keine intensive Ausbreitung"],
+      ["Fca",      "PUR-PUR",   "Keine definierten Brandeigenschaften"]
     ]
   },
   it: {
@@ -335,12 +335,12 @@ const I18N = {
     cableCol3: "Caratteristiche al fuoco",
     cableTable: [
       ["Aca",      "—",         "Non infiammabile, prodotti ceramici — non applicabile"],
-      ["B1ca",     "FE05C",     "Nessuna o scarsissima propagazione della fiamma"],
-      ["B2ca",     "FE0D",      "In caso di esposizione alle fiamme, nessuna propagazione continua"],
-      ["Cca",      "TT",        "Nessuna propagazione continua, ma forte sviluppo termico"],
-      ["Dca",      "PUR-PUR",   "Reazione al fuoco paragonabile al legno"],
-      ["Eca",      "—",         "Piccola fiamma, nessuna propagazione intensiva"],
-      ["Fca",      "—",         "Nessuna caratteristica al fuoco definita"]
+      ["B1ca",     "—",         "Nessuna o scarsissima propagazione della fiamma"],
+      ["B2ca",     "—",         "In caso di esposizione alle fiamme, nessuna propagazione continua"],
+      ["Cca",      "FE05C",     "Nessuna propagazione continua, ma forte sviluppo termico"],
+      ["Dca",      "FE0D",      "Reazione al fuoco paragonabile al legno"],
+      ["Eca",      "TT",        "Piccola fiamma, nessuna propagazione intensiva"],
+      ["Fca",      "PUR-PUR",   "Nessuna caratteristica al fuoco definita"]
     ]
   }
 };
