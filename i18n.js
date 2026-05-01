@@ -132,7 +132,7 @@ const I18N = {
     pdfGrpGroupe:   "Groupe",
     pdfGrpPartie:   "Partie d'inst.",
     pdfGrpCollab:   "Collaborateur",
-    pdfColHdr: ["N°","Designation","Type","Nbre\nsect.","Courbe","I nom\n(A)","Icc max\nL-PE","Icc min\nL-PE","Icc max\nL-N","Icc min\nL-N","R iso.\n(Mohm)","Rlo\n(ohm)","I nom.\n(A)","Idelta\n(mA)","Temps\n(ms)","Champ\ntour.","Chute\n%","","Nom\nPrenom"],
+    pdfColHdr: ["N°","Designation","Type","Nbre\nsect.","Courbe","I nom\n(A)","Icc max\nL-PE","Icc min\nL-PE","Icc max\nL-N","Icc min\nL-N","R iso.\n(Mohm)","Rlo\n(ohm)","I nom.\n(A)","Idelta\n(mA)","Temps\n(ms)","Champ\ntour.","Chute\n%","",""],
     pdfVcLabels: [
       "Protection de base des contacts directs","Identification coupe-surint., liste reference",
       "Presence de schemas a jour","Dispositions et marquages conducteurs",
@@ -266,7 +266,7 @@ const I18N = {
     pdfGrpGroupe:   "Gruppe",
     pdfGrpPartie:   "Anlagenteil",
     pdfGrpCollab:   "Mitarbeiter",
-    pdfColHdr: ["Nr.","Bezeichnung","Typ","Anz.\nQuerschn.","Kurve","I nenn\n(A)","Icc max\nL-PE","Icc min\nL-PE","Icc max\nL-N","Icc min\nL-N","R iso.\n(Mohm)","Rlo\n(ohm)","I nenn\n(A)","Idelta\n(mA)","Zeit\n(ms)","Dreh-\nfeld","Span.-\nabfall %","","Name\nVorname"],
+    pdfColHdr: ["Nr.","Bezeichnung","Typ","Anz.\nQuerschn.","Kurve","I nenn\n(A)","Icc max\nL-PE","Icc min\nL-PE","Icc max\nL-N","Icc min\nL-N","R iso.\n(Mohm)","Rlo\n(ohm)","I nenn\n(A)","Idelta\n(mA)","Zeit\n(ms)","Dreh-\nfeld","Span.-\nabfall %","",""],
     pdfVcLabels: [
       "Basisschutz gegen direktes Beruehren","Kennzeichnung Ueberstromschutz, Referenzliste",
       "Vorhandensein aktueller Schemen","Anordnung und Kennzeichnung der Leiter",
@@ -405,7 +405,7 @@ const I18N = {
     pdfGrpGroupe:   "Gruppo",
     pdfGrpPartie:   "Parte impianto",
     pdfGrpCollab:   "Collaboratore",
-    pdfColHdr: ["N.","Designazione","Tipo","N.×\nsezione","Curva","I nom\n(A)","Icc max\nL-PE","Icc min\nL-PE","Icc max\nL-N","Icc min\nL-N","R iso.\n(Mohm)","Rlo\n(ohm)","I nom.\n(A)","Idelta\n(mA)","Tempo\n(ms)","Campo\nrot.","Caduta\n%","","Nome\nCognome"],
+    pdfColHdr: ["N.","Designazione","Tipo","N.×\nsezione","Curva","I nom\n(A)","Icc max\nL-PE","Icc min\nL-PE","Icc max\nL-N","Icc min\nL-N","R iso.\n(Mohm)","Rlo\n(ohm)","I nom.\n(A)","Idelta\n(mA)","Tempo\n(ms)","Campo\nrot.","Caduta\n%","",""],
     pdfVcLabels: [
       "Protezione di base contatti diretti","Identificazione dispositivi protezione, lista rif.",
       "Presenza schemi aggiornati","Disposizioni e marcature conduttori",
