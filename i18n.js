@@ -62,8 +62,8 @@ const I18N = {
       ["Eca",      "TT",        "Kleine Flamme, keine intensive Ausbreitung"],
       ["Fca",      "PUR-PUR",   "Keine definierten Brandeigenschaften"]
     ],
-    pdfFournisseur: "Lieferant:",
-    pdfRemarquesInstall: "Bemerkungen Anl.:",
+    pdfFournisseur: "Fournisseur:",
+    pdfRemarquesInstall: "Remarques inst.:",
     lblNomPrenom:   "Nom et prénom",
     lblLieu:        "Lieu",
     lblDate:        "Date",
